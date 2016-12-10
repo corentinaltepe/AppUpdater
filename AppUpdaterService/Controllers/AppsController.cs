@@ -2,12 +2,14 @@
 using AppUpdaterService.Utils;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using System.Xml;
+using System.Xml.Serialization;
 
 namespace AppUpdaterService.Controllers
 {
@@ -54,18 +56,19 @@ namespace AppUpdaterService.Controllers
 
         private List<App> ReadListOfApps()
         {
-            List<App> apps = new List<App>();
+            XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
 
-            XmlTextReader reader = new XmlTextReader(HttpRuntime.AppDomainAppPath+"/App_Data/AppsList.xml");
-            while (reader.Read())
-            {
-                if(reader.NodeType == XmlNodeType.Element && reader.Name == "App")
-                {
-                    apps.Add(App.ReadXML(reader));
-                }
-            }
+            // Create a new file stream for reading the XML file
+            FileStream ReadFileStream = new FileStream(HttpRuntime.AppDomainAppPath + "/App_Data/AppsList.xml",
+                                                        FileMode.Open, FileAccess.Read, FileShare.Read);
 
-            return apps;
+            // Load the object saved above by using the Deserialize function
+            AppList apps = (AppList)SerializerObj.Deserialize(ReadFileStream);
+
+            // Cleanup
+            ReadFileStream.Close();
+            
+            return apps.Items;
         }
 
 
