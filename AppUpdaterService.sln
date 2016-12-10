@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterService", "AppUpd
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterService.Tests", "AppUpdaterService.Tests\AppUpdaterService.Tests.csproj", "{017AA0D6-EDA3-4456-A082-4FC7CAA4A6F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterClient", "AppUpdaterClient\AppUpdaterClient.csproj", "{8E1C005F-3405-4FA6-84DD-576C32268AFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterClient.Test", "AppUpdaterClient.Test\AppUpdaterClient.Test.csproj", "{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{017AA0D6-EDA3-4456-A082-4FC7CAA4A6F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{017AA0D6-EDA3-4456-A082-4FC7CAA4A6F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{017AA0D6-EDA3-4456-A082-4FC7CAA4A6F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E1C005F-3405-4FA6-84DD-576C32268AFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E1C005F-3405-4FA6-84DD-576C32268AFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E1C005F-3405-4FA6-84DD-576C32268AFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E1C005F-3405-4FA6-84DD-576C32268AFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
