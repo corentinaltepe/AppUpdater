@@ -17,7 +17,7 @@ namespace AppUpdaterService.Controllers
     {
         #region HTTP
         // GET: api/Apps
-        public IEnumerable<App> Get()
+        public AppList Get()
         {
             return ReadListOfApps();
         }
@@ -25,8 +25,8 @@ namespace AppUpdaterService.Controllers
         // GET: api/Apps/5
         public App Get(int id)
         {
-            List<App> apps = ReadListOfApps();
-            foreach (App app in apps)
+            AppList apps = ReadListOfApps();
+            foreach (App app in apps.Items)
                 if (app.Id.Equals(Convert.ToString(id)))
                     return app;
 
@@ -54,7 +54,7 @@ namespace AppUpdaterService.Controllers
 
         #endregion
 
-        private List<App> ReadListOfApps()
+        private AppList ReadListOfApps()
         {
             XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
 
@@ -68,7 +68,7 @@ namespace AppUpdaterService.Controllers
             // Cleanup
             ReadFileStream.Close();
             
-            return apps.Items;
+            return apps;
         }
 
 

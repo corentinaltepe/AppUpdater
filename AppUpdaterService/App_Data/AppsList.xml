@@ -11,8 +11,10 @@
     <Id>2</Id>
     <Name>Application2</Name>
     <VersionStr>v0.0.01</VersionStr>
-    <Version>1</Version>
+    <Version>5</Version>
     <Supported>true</Supported>
+    <Hash_sha256>fzeiufezhiufheiusdvbrj</Hash_sha256>
+    <Filename>/var/www/MyFiles.zip</Filename>
   </App>
   <App>
     <Id>3</Id>
