@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Apps>
+  <App>
+    <Id>1</Id>
+    <Name>Application1</Name>
+    <VersionStr>v0.0.01</VersionStr>
+    <Version>1</Version>
+    <Supported>true</Supported>
+  </App>
+  <App>
+    <Id>2</Id>
+    <Name>Application2</Name>
+    <VersionStr>v0.0.01</VersionStr>
+    <Version>1</Version>
+    <Supported>true</Supported>
+  </App>
+  <App>
+    <Id>3</Id>
+    <Name>Application3</Name>
+    <VersionStr>v0.0.01</VersionStr>
+    <Version>1</Version>
+    <Supported>true</Supported>
+  </App>
+  
+</Apps>
