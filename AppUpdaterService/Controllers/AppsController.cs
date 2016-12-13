@@ -15,6 +15,9 @@ namespace AppUpdaterService.Controllers
 {
     public class AppsController : ApiController
     {
+        private static string DEBUG_PATH = "C:/Users/Corentin/Desktop/samplesFolder/";
+        private static string RELEASE_PATH = "";
+
         #region HTTP
         // GET: api/Apps
         public AppList Get()
@@ -25,12 +28,7 @@ namespace AppUpdaterService.Controllers
         // GET: api/Apps/5
         public App Get(int id)
         {
-            AppList apps = ReadListOfApps();
-            foreach (App app in apps.Items)
-                if (app.Id.Equals(Convert.ToString(id)))
-                    return app;
-
-            return null;
+            return FindAppById(id);
         }
 
         // POST: api/Apps
@@ -40,6 +38,31 @@ namespace AppUpdaterService.Controllers
             if (message == null) return;
 
             RequestParser parser = new RequestParser(message);
+
+            // For now, do nothing
+        }
+
+        // POST: api/Apps/id
+        public void Post(int id, HttpRequestMessage request)
+        {
+            var message = request.Content.ReadAsStringAsync().Result;
+            if (message == null) return;
+
+            RequestParser parser = new RequestParser(message);
+
+            if(parser.Items.Count > 0)
+            {
+                if(parser.Items[0].Key.Equals("action"))
+                {
+                    switch(parser.Items[0].Value)
+                    {
+                        case "download":
+                            // Get the .zip if exists and send it back
+                            break;
+                    }
+                }
+            }
+            // For now, do nothing
         }
 
         // PUT: api/Apps/5
@@ -70,7 +93,16 @@ namespace AppUpdaterService.Controllers
             
             return apps;
         }
+       
+        private App FindAppById(int id)
+        {
+            AppList apps = ReadListOfApps();
+            foreach (App app in apps.Items)
+                if (app.Id.Equals(Convert.ToString(id)))
+                    return app;
 
+            return null;
+        }
 
     }
 }

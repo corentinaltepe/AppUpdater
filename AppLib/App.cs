@@ -18,6 +18,5 @@ namespace AppLib
         public string Hash_sha256 { get; set; }
         public string Filename { get; set; }
         public DateTime PublishDate { get; set; }
-
     }
 }

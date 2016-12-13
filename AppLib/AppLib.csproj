@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.cs" />
+    <Compile Include="AppContent.cs" />
     <Compile Include="AppList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
