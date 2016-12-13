@@ -15,8 +15,9 @@ namespace AppLib
         public int Version { get; set; }
         public bool Supported { get; set; }
 
-        public string Hash_sha256 { get; set; }
+        public string Sha256 { get; set; }
         public string Filename { get; set; }
         public DateTime PublishDate { get; set; }
+        public int Filesize { get; set; }
     }
 }

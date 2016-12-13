@@ -6,6 +6,9 @@
     <VersionStr>v0.0.01</VersionStr>
     <Version>1</Version>
     <Supported>true</Supported>
+    <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
+    <Filename>sample_JDP_v0.0.01.zip</Filename>
+    <Filesize>2188718</Filesize>
   </App>
   <App>
     <Id>2</Id>
@@ -13,8 +16,9 @@
     <VersionStr>v0.0.01</VersionStr>
     <Version>5</Version>
     <Supported>true</Supported>
-    <Hash_sha256>fzeiufezhiufheiusdvbrj</Hash_sha256>
-    <Filename>/var/www/MyFiles.zip</Filename>
+    <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
+    <Filename>sample_JDP_v0.0.02.zip</Filename>
+    <Filesize>2188718</Filesize>
   </App>
   <App>
     <Id>3</Id>
@@ -22,6 +26,9 @@
     <VersionStr>v0.0.01</VersionStr>
     <Version>1</Version>
     <Supported>true</Supported>
+    <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
+    <Filename>sample_JDP_v0.0.03.zip</Filename>
+    <Filesize>2188718</Filesize>
   </App>
   
 </Apps>

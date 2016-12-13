@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Web;
 using System.Web.Http;
 using System.Xml;
@@ -15,8 +17,8 @@ namespace AppUpdaterService.Controllers
 {
     public class AppsController : ApiController
     {
-        private static string DEBUG_PATH = "C:/Users/Corentin/Desktop/samplesFolder/";
-        private static string RELEASE_PATH = "";
+        private static string DEBUG_PATH = "C:/inetpub/wwwroot/samplesFolder/";
+        private static string RELEASE_PATH = "C:/inetpub/wwwroot/samplesFolder/";
 
         #region HTTP
         // GET: api/Apps
@@ -26,43 +28,55 @@ namespace AppUpdaterService.Controllers
         }
 
         // GET: api/Apps/5
-        public App Get(int id)
+        public IHttpActionResult Get(int id)
         {
-            return FindAppById(id);
+            var app = FindAppById(id);
+
+            if(app == null)
+                return BadRequest("App not found");
+
+            return Ok(app);
         }
 
         // POST: api/Apps
-        public void Post(HttpRequestMessage request)
+        public IHttpActionResult Post(HttpRequestMessage request)
         {
-            var message = request.Content.ReadAsStringAsync().Result;
-            if (message == null) return;
-
-            RequestParser parser = new RequestParser(message);
-
             // For now, do nothing
+            return BadRequest("Not implemented");
         }
 
         // POST: api/Apps/id
-        public void Post(int id, HttpRequestMessage request)
+        public IHttpActionResult Post(int id, HttpRequestMessage request)
         {
             var message = request.Content.ReadAsStringAsync().Result;
-            if (message == null) return;
+            if (message == null) return BadRequest("action key missing");
 
+            // Read the message, expect an "action" key
             RequestParser parser = new RequestParser(message);
-
-            if(parser.Items.Count > 0)
+            string action = parser.FindValue("action");
+            if (action == null) return BadRequest("action key missing or value is null");
+            
+            // Find the app information
+            var app = FindAppById(id);
+            if (app == null)
+                return BadRequest("App not found");
+            
+            switch(action)
             {
-                if(parser.Items[0].Key.Equals("action"))
-                {
-                    switch(parser.Items[0].Value)
-                    {
-                        case "download":
-                            // Get the .zip if exists and send it back
-                            break;
-                    }
-                }
+                case "download":
+                    AppContent appContent = FindAppContentByApp(app);
+                    if(appContent == null) return BadRequest("App not found");
+
+                    // Prepare to send the requested file as an octet-stream
+                    var result = new HttpResponseMessage(HttpStatusCode.OK)
+                    { Content = new ByteArrayContent(appContent.Archive) };
+                    result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                    { FileName = app.Filename};
+                    result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+                    return ResponseMessage(result);
+                default:
+                    return BadRequest("Action " + parser.Items[0].Value + " not recognized");
             }
-            // For now, do nothing
         }
 
         // PUT: api/Apps/5
@@ -77,6 +91,7 @@ namespace AppUpdaterService.Controllers
 
         #endregion
 
+        #region Functions
         private AppList ReadListOfApps()
         {
             XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
@@ -103,6 +118,67 @@ namespace AppUpdaterService.Controllers
 
             return null;
         }
+
+        private AppContent FindAppContentByApp(App app)
+        {
+            if (app == null) return null;
+
+            // Create an AppContent containing the ZipArchive designated
+            AppContent myApp = AppContent.Cast(app);     // Cast
+
+            // Find the file
+            string filename = RELEASE_PATH + app.Filename;
+#if DEBUG
+            filename = DEBUG_PATH + app.Filename;
+#endif
+            // Verify the file exists and is a .zip
+            if (!File.Exists(filename)) return null;
+            if (!Path.GetExtension(filename).Equals(".zip")) return null;
+
+            // Read the zip file and load it to myApp.Archive
+            byte[] file = ReadFile(filename);
+            if (file == null) return null;
+
+            // Verify validity of the file (size and hash)
+            if (file.Length != app.Filesize) return null;
+            SHA256 mySHA256 = SHA256Managed.Create();
+            byte[] hash = mySHA256.ComputeHash(file);
+            if (!StringHex.ToHexStr(hash).Equals(app.Sha256)) return null;
+
+            // The file was fully verified and proved valid
+            myApp.Archive = file;
+            return myApp;
+        }
+
+        private byte[] ReadFile(string filename)
+        {
+            using (FileStream fsSource = new FileStream(filename,
+                FileMode.Open, FileAccess.Read))
+            {
+                // Read the source file into a byte array.
+                byte[] bytes = new byte[fsSource.Length];
+                int numBytesToRead = (int)fsSource.Length;
+                int numBytesRead = 0;
+                while (numBytesToRead > 0)
+                {
+                    // Read may return anything from 0 to numBytesToRead.
+                    int n = fsSource.Read(bytes, numBytesRead, numBytesToRead);
+
+                    // Break when the end of the file is reached.
+                    if (n == 0)
+                        break;
+
+                    numBytesRead += n;
+                    numBytesToRead -= n;
+                }
+                numBytesToRead = bytes.Length;
+
+                return bytes;
+            }
+        }
+        
+        #endregion
+
 
     }
 }

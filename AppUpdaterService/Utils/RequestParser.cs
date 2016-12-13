@@ -28,5 +28,13 @@ namespace AppUpdaterService.Utils
 
             return items;
         }
+
+        public string FindValue(string key)
+        {
+            foreach (HttpRequestMessageItem item in Items)
+                if (item.Key.Equals(key)) return item.Value;
+
+            return null;
+        }
     }
 }
