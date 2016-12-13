@@ -1,1 +1,5 @@
-AppUpdaterService/scripts/* linguist-vendored=false
+AppUpdaterService/scripts/* linguist-vendored
+AppUpdaterService/scripts/ai.0.22.9-build00167.js linguist-vendored
+AppUpdaterService/scripts/ai.0.22.9-build00167.min.js linguist-vendored
+ai.0.22.9-build00167.js linguist-vendored
+ai.0.22.9-build00167.min.js linguist-vendored
