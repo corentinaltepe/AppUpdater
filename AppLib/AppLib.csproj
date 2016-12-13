@@ -4,14 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8E1C005F-3405-4FA6-84DD-576C32268AFD}</ProjectGuid>
+    <ProjectGuid>{B9CCE9DE-D46E-4A56-9941-83E55F20EA59}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AppUpdaterClient</RootNamespace>
-    <AssemblyName>AppUpdaterClient</AssemblyName>
+    <RootNamespace>AppLib</RootNamespace>
+    <AssemblyName>AppLib</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,10 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="RestSharp, Version=105.2.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RestSharp.105.2.2\lib\net45\RestSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,21 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AppUpdater.cs" />
+    <Compile Include="App.cs" />
+    <Compile Include="AppList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AppLib\AppLib.csproj">
-      <Project>{b9cce9de-d46e-4a56-9941-83e55f20ea59}</Project>
-      <Name>AppLib</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AppUpdaterService\AppUpdaterService.csproj">
-      <Project>{9f188ad4-98e0-438b-ba47-e87b973a3ff8}</Project>
-      <Name>AppUpdaterService</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -55,6 +55,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AppLib\AppLib.csproj">
+      <Project>{b9cce9de-d46e-4a56-9941-83e55f20ea59}</Project>
+      <Name>AppLib</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AppUpdaterClient\AppUpdaterClient.csproj">
       <Project>{8e1c005f-3405-4fa6-84dd-576c32268afd}</Project>
       <Name>AppUpdaterClient</Name>

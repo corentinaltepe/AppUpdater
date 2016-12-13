@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterService", "AppUpdaterService\AppUpdaterService.csproj", "{9F188AD4-98E0-438B-BA47-E87B973A3FF8}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterClient", "AppUpdaterClient\AppUpdaterClient.csproj", "{8E1C005F-3405-4FA6-84DD-576C32268AFD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUpdaterClient.Test", "AppUpdaterClient.Test\AppUpdaterClient.Test.csproj", "{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLib", "AppLib\AppLib.csproj", "{B9CCE9DE-D46E-4A56-9941-83E55F20EA59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D6BE6CA-05C0-44A0-9CCC-D0526034CA2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9CCE9DE-D46E-4A56-9941-83E55F20EA59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9CCE9DE-D46E-4A56-9941-83E55F20EA59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9CCE9DE-D46E-4A56-9941-83E55F20EA59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9CCE9DE-D46E-4A56-9941-83E55F20EA59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

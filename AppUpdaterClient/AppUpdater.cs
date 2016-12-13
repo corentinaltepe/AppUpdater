@@ -1,4 +1,4 @@
-﻿using AppUpdaterService.Models;
+﻿using AppLib;
 using RestSharp;
 using System;
 using System.Collections.Generic;

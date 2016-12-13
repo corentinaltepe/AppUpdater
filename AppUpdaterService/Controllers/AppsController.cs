@@ -1,4 +1,4 @@
-﻿using AppUpdaterService.Models;
+﻿using AppLib;
 using AppUpdaterService.Utils;
 using System;
 using System.Collections.Generic;
