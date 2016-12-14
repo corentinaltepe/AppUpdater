@@ -127,15 +127,18 @@ namespace AppUpdaterClient
             
             try
             {
+                // Decrypt the bytes using the key of the app
+                byte[] decryptedFile = StringCipher.Decrypt(response.RawBytes, CurrentApp.Key);
+
                 // Verify validity of the file (size and hash)
-                if (response.RawBytes.Length != NewerApp.Filesize) return;
+                if (decryptedFile.Length != NewerApp.Filesize) return;
                 SHA256 mySHA256 = SHA256Managed.Create();
-                byte[] hash = mySHA256.ComputeHash(response.RawBytes);
+                byte[] hash = mySHA256.ComputeHash(decryptedFile);
                 if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256)) return;
 
                 // Download the file to TMP folder
                 string tempPath = System.IO.Path.GetTempPath();
-                File.WriteAllBytes(tempPath + "appUpdaterClientNewerSoftware.zip", response.RawBytes);
+                File.WriteAllBytes(tempPath + "appUpdaterClientNewerSoftware.zip", decryptedFile);
 
                 // Verify the file was written properly
                 if (!File.Exists(tempPath + "appUpdaterClientNewerSoftware.zip")) return;

@@ -63,6 +63,9 @@ namespace AppUpdaterService.Controllers
                     AppContent appContent = FindAppContentByApp(app);
                     if(appContent == null) return BadRequest("App not found");
 
+                    // Encrypt ArchiveFile before sending it
+                    appContent.EncryptArchive();
+
                     // Prepare to send the requested file as an octet-stream
                     var result = new HttpResponseMessage(HttpStatusCode.OK)
                     { Content = new ByteArrayContent(appContent.Archive) };

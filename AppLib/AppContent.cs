@@ -13,6 +13,17 @@ namespace AppLib
         // Use FileStream to read and write file
         public byte[] Archive { get; set; }
 
+        public void EncryptArchive()
+        {
+            if (Key == null) return;
+            if (Archive == null) return;
+            try
+            {
+                Archive =  StringCipher.Encrypt(Archive, Key);
+            }
+            catch { }
+        }
+
         public static AppContent Cast(App app)
         {
             AppContent appContent = new AppContent();

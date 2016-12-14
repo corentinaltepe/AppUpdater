@@ -15,13 +15,13 @@ namespace AppLib
         // This constant determines the number of iterations for the password bytes generation function.
         private const int DerivationIterations = 1000;
 
-        public static string Encrypt(string plainText, string passPhrase)
+        public static byte[] Encrypt(byte[] plainText, string passPhrase)
         {
             // Salt and IV is randomly generated each time, but is preprended to encrypted cipher text
             // so that the same Salt and IV values can be used when decrypting.  
             var saltStringBytes = Generate256BitsOfRandomEntropy();
             var ivStringBytes = Generate256BitsOfRandomEntropy();
-            var plainTextBytes = Encoding.UTF8.GetBytes(plainText);
+            var plainTextBytes = plainText;
             using (var password = new Rfc2898DeriveBytes(passPhrase, saltStringBytes, DerivationIterations))
             {
                 var keyBytes = password.GetBytes(Keysize / 8);
@@ -44,7 +44,7 @@ namespace AppLib
                                 cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
                                 memoryStream.Close();
                                 cryptoStream.Close();
-                                return StringHex.ToHexStr(cipherTextBytes);
+                                return cipherTextBytes;
                             }
                         }
                     }
@@ -52,11 +52,16 @@ namespace AppLib
             }
         }
 
-        public static string Decrypt(string cipherText, string passPhrase)
+        public static string Encrypt(string plainText, string passPhrase)
+        {
+            return StringHex.ToHexStr(Encrypt(Encoding.UTF8.GetBytes(plainText), passPhrase));
+        }
+
+        public static byte[] Decrypt(byte[] cipher, string passPhrase)
         {
             // Get the complete stream of bytes that represent:
             // [32 bytes of Salt] + [32 bytes of IV] + [n bytes of CipherText]
-            var cipherTextBytesWithSaltAndIv = StringHex.ToByte(cipherText);
+            var cipherTextBytesWithSaltAndIv = cipher;
             // Get the saltbytes by extracting the first 32 bytes from the supplied cipherText bytes.
             var saltStringBytes = cipherTextBytesWithSaltAndIv.Take(Keysize / 8).ToArray();
             // Get the IV bytes by extracting the next 32 bytes from the supplied cipherText bytes.
@@ -82,12 +87,20 @@ namespace AppLib
                                 var decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
                                 memoryStream.Close();
                                 cryptoStream.Close();
-                                return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount);
+                                byte[] decryptedBytes = new byte[decryptedByteCount];
+                                Array.Copy(plainTextBytes, decryptedBytes, decryptedByteCount);
+                                return decryptedBytes;
                             }
                         }
                     }
                 }
             }
+        }
+
+        public static string Decrypt(string cipherText, string passPhrase)
+        {
+            byte[] decrypted = Decrypt(StringHex.ToByte(cipherText), passPhrase);
+            return Encoding.UTF8.GetString(decrypted, 0, decrypted.Length);
         }
 
         private static byte[] Generate256BitsOfRandomEntropy()
