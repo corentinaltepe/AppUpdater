@@ -11,7 +11,7 @@ namespace AppUpdaterClient.Test
         private static string SERVER = "http://localhost:8112/api";
 
 
-        [TestMethod, Timeout(2000)]
+        [TestMethod]
         public void CheckNewerVersionAvailableTest()
         {
             List<string> receivedEvents = new List<string>();

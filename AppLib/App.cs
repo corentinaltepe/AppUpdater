@@ -9,19 +9,6 @@ namespace AppLib
 {
     public class App
     {
-        public string EncryptedId
-        {
-            get
-            {
-                if (Key == null) return null;
-                if (Id == null) return null;
-                try
-                {
-                    return StringCipher.Decrypt(Id, Key);
-                }
-                catch { return null; }
-            }
-        }
         public string Id { get; set; }
         public string Key { get; set; }
 
@@ -50,6 +37,15 @@ namespace AppLib
             { return StringCipher.Decrypt(encryptedId, this.Key); }
             catch { return null; }
         }
-
+        public string EncryptedId()
+        {
+            if (Key == null) return null;
+            if (Id == null) return null;
+            try
+            {
+                return StringCipher.Encrypt(Id, Key);
+            }
+            catch { return null; }
+        }
     }
 }

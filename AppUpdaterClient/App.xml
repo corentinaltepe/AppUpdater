@@ -2,13 +2,13 @@
 <App>
   <!-- Unique identifier of the application. Must NOT be sent explicitly to the API -->
   <!-- Instead, when transmitting to the API, encrypt it with the KEY -->
-  <!-- 32-byte ID -->
-  <Id>E702555DC4F1413AB8CA838094F20396</Id>
+  <!-- 32-byte (16 characters) ID -->
+  <Id>ujrWZlyKQ4FLAS49</Id>
 
   <!-- Encryption key, used to encrypt the App ID. Never send the key to the API. -->
   <!-- This key and the ID must be copied to the server and be identical -->
-  <!-- 32-byte key -->
-  <Key>5BF596EBE7D6488E8A9232427BF5EF54</Key>
+  <!-- 32-byte (16 characters) key -->
+  <Key>tSzmfr1C35YAYI6r</Key>
   
   <Name>Application1</Name>
   <VersionStr>v0.0.01</VersionStr>

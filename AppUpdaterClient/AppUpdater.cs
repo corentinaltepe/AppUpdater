@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -49,7 +50,8 @@ namespace AppUpdaterClient
             XmlSerializer SerializerObj = new XmlSerializer(typeof(App));
 
             // Check App.xml exists
-            string pathtoAppXml = System.Reflection.Assembly.GetEntryAssembly().Location + "App.xml";
+            string pathtoAppXml = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            pathtoAppXml = Path.Combine(pathtoAppXml, "App.xml");
             if (!File.Exists(pathtoAppXml))
                 throw new FileNotFoundException("File App.xml not found. Make sure to create one containing the information about your application.");
 
@@ -73,7 +75,7 @@ namespace AppUpdaterClient
 
             var client = new RestClient(ServerAddress);
             var request = new RestRequest("/Apps/", Method.POST);
-            request.AddParameter("id", CurrentApp.EncryptedId);
+            request.AddParameter("id", CurrentApp.EncryptedId());
 
             var asyncHandle = client.ExecuteAsync<App>(request, response => {
                 HandleServerResponse(response);
@@ -90,7 +92,7 @@ namespace AppUpdaterClient
             
             var client = new RestClient(ServerAddress);
             var request = new RestRequest("/Apps/", Method.POST);
-            request.AddParameter("id", CurrentApp.EncryptedId);
+            request.AddParameter("id", CurrentApp.EncryptedId());
             request.AddParameter("action", "download");
             
             var asyncHandle = client.ExecuteAsync<App>(request, response => {
