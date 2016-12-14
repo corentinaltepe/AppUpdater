@@ -25,7 +25,7 @@ namespace AppUpdaterClient.Test
             Assert.AreEqual("NewerApp", receivedEvents[0]);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(100000)]
         public void DownloadNewerApplicationTest()
         {
             // Start identical to test above
@@ -39,10 +39,12 @@ namespace AppUpdaterClient.Test
             while (receivedEvents.Count == 0) Thread.Sleep(20);
             Assert.AreEqual("NewerApp", receivedEvents[0]);
 
-            // Now give the order to download (POST -> api/Apps/id --> "action:download")
+            // Now give the order to download and expect a notification
             updater.Download();
+            while (receivedEvents.Count == 1) Thread.Sleep(20);
+            Assert.AreEqual("IsUpdateDownloaded", receivedEvents[1]);
 
-            Thread.Sleep(5000);
+            updater.InstallUpdate();
         }
 
         [TestMethod]

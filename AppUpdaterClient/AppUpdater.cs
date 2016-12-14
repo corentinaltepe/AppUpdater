@@ -3,6 +3,7 @@ using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,7 +34,21 @@ namespace AppUpdaterClient
                 OnPropertyChanged("NewerApp");
             }
         }
-        
+
+        // True if the newer app was downloaded and properly checked.
+        public bool isUpdateDownloaded;
+        public bool IsUpdateDownloaded 
+        {
+            get { return isUpdateDownloaded; }
+            set
+            {
+                isUpdateDownloaded = value;
+                OnPropertyChanged("IsUpdateDownloaded");
+            }
+        }
+
+        // Filename (and path) to the newly downloaded app
+        public string DownloadedFilename { get; set; }
 
         #region Constructors
         public AppUpdater(string serverAddress)
@@ -137,24 +152,36 @@ namespace AppUpdaterClient
                 if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256)) return;
 
                 // Download the file to TMP folder
-                string tempPath = System.IO.Path.GetTempPath();
-                File.WriteAllBytes(tempPath + "appUpdaterClientNewerSoftware.zip", decryptedFile);
+                string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D") + ".zip";
+                File.WriteAllBytes(filename, decryptedFile);
 
                 // Verify the file was written properly
-                if (!File.Exists(tempPath + "appUpdaterClientNewerSoftware.zip")) return;
-                FileInfo info = new FileInfo(tempPath + "appUpdaterClientNewerSoftware.zip");
+                if (!File.Exists(filename)) return;
+                FileInfo info = new FileInfo(filename);
                 if (info.Length != NewerApp.Filesize) return;
 
-                // TODO: continue here
+                // Notify app of the newly downloaded app
+                DownloadedFilename = filename;
+                IsUpdateDownloaded = true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
         }
+        
+        public void InstallUpdate()
+        {
+            // Run a few checks on the validity and existence of the file
+            if (!IsUpdateDownloaded) return;
+            if (!File.Exists(DownloadedFilename)) return;
+            
+            FileInfo info = new FileInfo(DownloadedFilename);
+            if (!info.Extension.Equals(".zip")) return;
 
-
-
+            // Start Bootloader
+            Process.Start("Bootloader.exe", DownloadedFilename);
+        }
         #endregion
 
         #region Events

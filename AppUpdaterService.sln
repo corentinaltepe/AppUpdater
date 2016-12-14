@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLib", "AppLib\AppLib.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppLib.Test", "AppLib.Test\AppLib.Test.csproj", "{38BF3217-32E7-4687-9953-460CAC2307F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bootloader", "Bootloader\Bootloader.csproj", "{11D9CCC6-18A5-4BE1-B7CA-99338485CA50}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{38BF3217-32E7-4687-9953-460CAC2307F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38BF3217-32E7-4687-9953-460CAC2307F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38BF3217-32E7-4687-9953-460CAC2307F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11D9CCC6-18A5-4BE1-B7CA-99338485CA50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11D9CCC6-18A5-4BE1-B7CA-99338485CA50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11D9CCC6-18A5-4BE1-B7CA-99338485CA50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11D9CCC6-18A5-4BE1-B7CA-99338485CA50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

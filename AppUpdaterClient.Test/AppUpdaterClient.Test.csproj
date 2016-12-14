@@ -63,10 +63,13 @@
       <Project>{8e1c005f-3405-4fa6-84dd-576c32268afd}</Project>
       <Name>AppUpdaterClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\AppUpdaterService\AppUpdaterService.csproj">
-      <Project>{9f188ad4-98e0-438b-ba47-e87b973a3ff8}</Project>
-      <Name>AppUpdaterService</Name>
+    <ProjectReference Include="..\Bootloader\Bootloader.csproj">
+      <Project>{11d9ccc6-18a5-4be1-b7ca-99338485ca50}</Project>
+      <Name>Bootloader</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
