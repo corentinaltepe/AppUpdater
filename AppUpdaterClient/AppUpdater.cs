@@ -9,14 +9,17 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace AppUpdaterClient
 {
     public class AppUpdater : INotifyPropertyChanged
     {
+        // Address and port of the server hosting AppUpdaterService
         public string ServerAddress { get; set; }
-        public string AppId { get; set; }
-        public int CurrentVersion { get; set; }
+
+        // Info about the Application the AppUpdater is embedded to
+        public App CurrentApp { get; set; }
 
         // If a newer application is available, its info is loaded in this object
         private App newerApp;
@@ -32,29 +35,48 @@ namespace AppUpdaterClient
         
 
         #region Constructors
-        public AppUpdater()
-        { }
-
-        public AppUpdater(string serverAddress, string appId, int currentVersion)
+        public AppUpdater(string serverAddress)
         {
             this.ServerAddress = serverAddress;
-            this.AppId = appId;
-            this.CurrentVersion = currentVersion;
+            this.CurrentApp = ReadAppXML();
         }
 
         #endregion
 
         #region Methods
+        private App ReadAppXML()
+        {
+            XmlSerializer SerializerObj = new XmlSerializer(typeof(App));
+
+            // Check App.xml exists
+            string pathtoAppXml = System.Reflection.Assembly.GetEntryAssembly().Location + "App.xml";
+            if (!File.Exists(pathtoAppXml))
+                throw new FileNotFoundException("File App.xml not found. Make sure to create one containing the information about your application.");
+
+            // Create a new file stream for reading the XML file
+            FileStream ReadFileStream = new FileStream(pathtoAppXml, FileMode.Open, FileAccess.Read, FileShare.Read);
+
+            // Load the object saved above by using the Deserialize function
+            App app = (App)SerializerObj.Deserialize(ReadFileStream);
+
+            // Cleanup
+            ReadFileStream.Close();
+
+            return app;
+        }
+        
         // Check on the server if a newer version is available for the given app
         // If newer app is available, assign it to this.NewerApp
         public void CheckNewerVersionAvailable()
         {
+            // Encrypt the AppID
+
             var client = new RestClient(ServerAddress);
-            var request = new RestRequest("/Apps/"+AppId, Method.GET);
-            
+            var request = new RestRequest("/Apps/", Method.POST);
+            request.AddParameter("id", CurrentApp.EncryptedId);
+
             var asyncHandle = client.ExecuteAsync<App>(request, response => {
                 HandleServerResponse(response);
-                //Console.WriteLine(response.Data.Name);
             });
 
         }
@@ -67,7 +89,8 @@ namespace AppUpdaterClient
             if (NewerApp == null) return;
             
             var client = new RestClient(ServerAddress);
-            var request = new RestRequest("/Apps/" + AppId, Method.POST);
+            var request = new RestRequest("/Apps/", Method.POST);
+            request.AddParameter("id", CurrentApp.EncryptedId);
             request.AddParameter("action", "download");
             
             var asyncHandle = client.ExecuteAsync<App>(request, response => {
@@ -88,7 +111,7 @@ namespace AppUpdaterClient
             if (serverAppInfo != null)
             {
                 // If the app on the server is more recent (Version higher)
-                if (serverAppInfo.Version > this.CurrentVersion)
+                if (serverAppInfo.Version > this.CurrentApp.Version)
                     // the notify by placing the info in thi.NewerApp
                     this.NewerApp = serverAppInfo;
             }

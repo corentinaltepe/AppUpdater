@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Apps>
   <App>
-    <Id>1</Id>
+    <Id>E702555DC4F1413AB8CA838094F20396</Id>
+    <Key>5BF596EBE7D6488E8A9232427BF5EF54</Key>
     <Name>Application1</Name>
     <VersionStr>v0.0.01</VersionStr>
     <Version>1</Version>
@@ -10,25 +11,4 @@
     <Filename>sample_JDP_v0.0.01.zip</Filename>
     <Filesize>2188718</Filesize>
   </App>
-  <App>
-    <Id>2</Id>
-    <Name>Application2</Name>
-    <VersionStr>v0.0.01</VersionStr>
-    <Version>5</Version>
-    <Supported>true</Supported>
-    <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
-    <Filename>sample_JDP_v0.0.02.zip</Filename>
-    <Filesize>2188718</Filesize>
-  </App>
-  <App>
-    <Id>3</Id>
-    <Name>Application3</Name>
-    <VersionStr>v0.0.01</VersionStr>
-    <Version>1</Version>
-    <Supported>true</Supported>
-    <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
-    <Filename>sample_JDP_v0.0.03.zip</Filename>
-    <Filesize>2188718</Filesize>
-  </App>
-  
 </Apps>

@@ -16,8 +16,10 @@ namespace AppLib
         public static AppContent Cast(App app)
         {
             AppContent appContent = new AppContent();
+
             appContent.Filename = app.Filename;
             appContent.Id = app.Id;
+            appContent.Key = app.Key;
             appContent.Name = app.Name;
             appContent.PublishDate = app.PublishDate;
             appContent.Supported = app.Supported;

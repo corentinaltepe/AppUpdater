@@ -15,8 +15,7 @@ namespace AppUpdaterClient.Test
         public void CheckNewerVersionAvailableTest()
         {
             List<string> receivedEvents = new List<string>();
-
-            AppUpdater updater = new AppUpdater(SERVER, "2", 1);
+            AppUpdater updater = new AppUpdater(SERVER);
 
             // Await
             updater.PropertyChanged += (sender, e) => receivedEvents.Add(e.PropertyName);
@@ -31,7 +30,7 @@ namespace AppUpdaterClient.Test
         {
             // Start identical to test above
             List<string> receivedEvents = new List<string>();
-            AppUpdater updater = new AppUpdater(SERVER, "2", 1);
+            AppUpdater updater = new AppUpdater(SERVER);
 
             // Await
             updater.PropertyChanged += (sender, e) => receivedEvents.Add(e.PropertyName);
@@ -51,7 +50,7 @@ namespace AppUpdaterClient.Test
         {
             List<string> receivedEvents = new List<string>();
 
-            AppUpdater updater = new AppUpdater(SERVER, "NotAValidId", 1);
+            AppUpdater updater = new AppUpdater(SERVER);
             updater.PropertyChanged += (sender, e) => receivedEvents.Add(e.PropertyName);
             updater.CheckNewerVersionAvailable();
             Thread.Sleep(2000);

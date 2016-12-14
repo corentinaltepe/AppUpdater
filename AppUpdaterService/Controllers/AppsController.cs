@@ -22,44 +22,40 @@ namespace AppUpdaterService.Controllers
 
         #region HTTP
         // GET: api/Apps
-        public AppList Get()
+        public IHttpActionResult Get()
         {
-            return ReadListOfApps();
+            return BadRequest("List of Apps not open.");
         }
 
-        // GET: api/Apps/5
-        public IHttpActionResult Get(int id)
+        // GET: api/Apps/duefubdvsbhei
+        public IHttpActionResult Get(string id)
         {
-            var app = FindAppById(id);
-
-            if(app == null)
-                return BadRequest("App not found");
-
-            return Ok(app);
+            return BadRequest("List of Apps not open.");
         }
-
-        // POST: api/Apps
-        public IHttpActionResult Post(HttpRequestMessage request)
-        {
-            // For now, do nothing
-            return BadRequest("Not implemented");
-        }
-
+        
         // POST: api/Apps/id
-        public IHttpActionResult Post(int id, HttpRequestMessage request)
+        /* Returns the info of the App if id matches an app in the list,
+         * Returns the App file if 'action' key says 'download'. */
+        public IHttpActionResult Post(HttpRequestMessage request)
         {
             var message = request.Content.ReadAsStringAsync().Result;
             if (message == null) return BadRequest("action key missing");
 
-            // Read the message, expect an "action" key
+            // Read the message, expect an "id" key
             RequestParser parser = new RequestParser(message);
-            string action = parser.FindValue("action");
-            if (action == null) return BadRequest("action key missing or value is null");
-            
+            string id = parser.FindValue("id");
+            if (id == null) return BadRequest("ID missing or value is null");
+
             // Find the app information
-            var app = FindAppById(id);
+            var app = FindAppByEncryptedId(id);
             if (app == null)
                 return BadRequest("App not found");
+
+            // Read the message, expect an "action" key
+            parser = new RequestParser(message);
+            string action = parser.FindValue("action");
+            if (action == null)
+                return Ok(app.RemoveSensitiveInfo());
             
             switch(action)
             {
@@ -108,13 +104,23 @@ namespace AppUpdaterService.Controllers
             
             return apps;
         }
-       
-        private App FindAppById(int id)
+
+        private App FindAppByEncryptedId(string encryptedId)
         {
             AppList apps = ReadListOfApps();
             foreach (App app in apps.Items)
-                if (app.Id.Equals(Convert.ToString(id)))
-                    return app;
+            {
+                try
+                {
+                    // Decrypt the ID with the App's key
+                    string decryptedId = app.DecryptedId(encryptedId);
+
+                    if (app.Id.Equals(decryptedId))
+                        return app;
+                }
+                catch { return null; }
+            }
+               
 
             return null;
         }
