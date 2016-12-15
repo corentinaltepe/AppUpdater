@@ -180,7 +180,10 @@ namespace AppUpdaterClient
             if (!info.Extension.Equals(".zip")) return;
 
             // Start Bootloader
-            Process.Start("Bootloader.exe", DownloadedFilename);
+            string[] arguments = { CurrentApp.ToXML(),
+                                   NewerApp.ToXML(),
+                                   DownloadedFilename };
+            Process.Start("Bootloader.exe");
         }
         #endregion
 

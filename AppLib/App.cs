@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Xml;
@@ -47,5 +48,24 @@ namespace AppLib
             }
             catch { return null; }
         }
+
+        public string ToXML()
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(this.GetType());
+            using (StringWriter textWriter = new StringWriter())
+            {
+                xmlSerializer.Serialize(textWriter, this);
+                return textWriter.ToString();
+            }
+        }
+        public static App FromXML(string s)
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(App));
+            using (StringReader textReader = new StringReader(s))
+            {
+                return (App)(xmlSerializer.Deserialize(textReader));
+            }
+        }
+
     }
 }

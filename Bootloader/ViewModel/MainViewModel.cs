@@ -19,7 +19,37 @@ namespace Bootloader.ViewModel
                 OnPropertyChanged("Title");
             }
         }
-        
+        private string filename;
+        public string Filename
+        {
+            get { return filename; }
+            set
+            {
+                filename = value;
+                OnPropertyChanged("Filename");
+            }
+        }
+        private AppLib.App currentApp;
+        public AppLib.App CurrentApp
+        {
+            get { return currentApp; }
+            set
+            {
+                currentApp = value;
+                OnPropertyChanged("CurrentApp");
+            }
+        }
+        private AppLib.App newerApp;
+        public AppLib.App NewerApp
+        {
+            get { return newerApp; }
+            set
+            {
+                newerApp = value;
+                OnPropertyChanged("NewerApp");
+            }
+        }
+
 
         #region Events
         public event PropertyChangedEventHandler PropertyChanged;
