@@ -9,8 +9,9 @@
   <!-- This key and the ID must be copied to the server and be identical -->
   <!-- 32-byte (16 characters) key -->
   <Key>tSzmfr1C35YAYI6r</Key>
+  <ProcessName>JapaneseDivePlannerUI</ProcessName>
   
-  <Name>Application1</Name>
+  <Name>Japanese Dive Planner</Name>
   <VersionStr>v0.0.01</VersionStr>
   <Version>1</Version>
   <Supported>true</Supported>

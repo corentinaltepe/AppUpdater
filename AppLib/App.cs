@@ -18,6 +18,9 @@ namespace AppLib
         public int Version { get; set; }
         public bool Supported { get; set; }
 
+        // Name of the .exe to be started once the update has finished
+        public string ProcessName { get; set; }
+
         public string Sha256 { get; set; }
         public string Filename { get; set; }
         public DateTime PublishDate { get; set; }

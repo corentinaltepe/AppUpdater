@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,9 +46,17 @@ namespace Bootloader
                 // Process ID to be killed before update
                 else if(int.TryParse(arg, out processId))
                 {
-                    context.CallingProcessId = processId;
+                    // Get the calling process, if still active
+                    Process caller = null;
+                    try { caller = Process.GetProcessById(processId); }
+                    catch { }
+
+                    context.CallingProcess = caller;
                 }
             }
+
+            // Start the update
+            context.UpdateApplication();
         }
     }
 }

@@ -7,11 +7,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO.Compression;
 using System.Diagnostics;
+using System.Timers;
 
 namespace Bootloader.ViewModel
 {
     public class MainViewModel : INotifyPropertyChanged
     {
+        // Files which should not be overwritten during update
+        private static string[] BOOTLOADERFILES = { "AppLib.dll",
+                                                    "Bootloader.exe",
+                                                    "Bootloader.Test.dll",
+                                                    "AppLib.pdb",
+                                                    "Bootloader.pdb",
+                                                    "Bootloader.exe.config",
+                                                    "Bootloader.vshost.exe",
+                                                    "Bootloader.vshost.exe.config",
+                                                    "Bootloader.vshost.exe.manifest",
+                                                    "Bootloader.Test.pdb"};
+
+        private static int TIMEOUT = 30000;
+
         #region Properties
         public string Title
         {
@@ -46,8 +61,6 @@ namespace Bootloader.ViewModel
                 // Notify a change of Title
                 if(currentApp != null && !String.IsNullOrEmpty(currentApp.Name))
                     OnPropertyChanged("Title");
-
-                UpdateApplication();
             }
         }
         private AppLib.App newerApp;
@@ -58,31 +71,50 @@ namespace Bootloader.ViewModel
             {
                 newerApp = value;
                 OnPropertyChanged("NewerApp");
-
-                UpdateApplication();
             }
         }
 
         // Not triggering events because not necessary
-        private int callingProcessId;
-        public int CallingProcessId
+        public Process callingProcess;
+        public Process CallingProcess
         {
-            get { return callingProcessId; }
+            get { return callingProcess; }
             set
             {
-                callingProcessId = value;
-                IsProcessIdGiven = true;
+                callingProcess = value;
+
+                // Wait for the calling process to be killed
+                if (callingProcess != null)
+                {
+                    callingProcess.EnableRaisingEvents = true;
+                    //callingProcess.Disposed += CallingProcess_Exited;
+                    callingProcess.Exited += CallingProcess_Exited;
+                }
+
+                IsProcessGiven = true;
             }
         }
-        public bool IsProcessIdGiven { get; set; }
+        public bool IsProcessGiven { get; set; }
+
+        // The stopwatch is used to kill the bootloader if the update has not been
+        // initiated within a certain time limit
+        private Timer Timer { get; set; }
+        
         #endregion
 
         #region Constructors
         public MainViewModel()
         {
+            // Start the Timer
+            this.Timer = new Timer(TIMEOUT);
+            this.Timer.Elapsed += Timer_Elapsed;
+            this.Timer.Start();
+
             // Read the App.xml at the local folder of the bootloader.exe
             ReadCurrentApp();
         }
+
+        
         #endregion
 
         #region Methods
@@ -114,11 +146,15 @@ namespace Bootloader.ViewModel
             }
         }
 
-        private void UpdateApplication()
+        public void UpdateApplication()
         {
             // Do nothing is everything is not ready for the update
             if (!IsReadyForAppUpdate()) return;
 
+            // Stop the timer, which could interrupt the update during its process
+            this.Timer.Stop();
+
+            // Run the update
             try
             {
                 // Open the zip
@@ -128,23 +164,37 @@ namespace Bootloader.ViewModel
                 string path = AppDomain.CurrentDomain.BaseDirectory;
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    string fullpath = path + @"\" + entry.FullName;
-
-                    // If file
-                    if (!String.IsNullOrEmpty(entry.Name))
-                        entry.ExtractToFile(fullpath, true);
-
-                    // If folder
-                    else
+                    if (!IsBootloaderFile(entry.Name))
                     {
-                        // Create directory
-                        if (!Directory.Exists(fullpath))
-                            Directory.CreateDirectory(fullpath);
+                        string fullpath = path + @"\" + entry.FullName;
+
+                        // If file
+                        if (!String.IsNullOrEmpty(entry.Name))
+                            entry.ExtractToFile(fullpath, true);
+
+                        // If folder
+                        else
+                        {
+                            // Create directory
+                            if (!Directory.Exists(fullpath))
+                                Directory.CreateDirectory(fullpath);
+                        }
                     }
                 }
+
+                archive.Dispose();
             }
             catch (Exception e)
             { Console.WriteLine(e.Message); }
+
+            // Start the Application
+            Process.Start(NewerApp.ProcessName + ".exe");
+
+            // Delete the tmp file
+            File.Delete(Filename);
+
+            // Kill the bootloader process
+            Process.GetCurrentProcess().Kill();
         }
         #endregion
 
@@ -166,6 +216,9 @@ namespace Bootloader.ViewModel
             // Read the App.xml
             AppLib.App app = ReadApp(GetEntry(archive, "App.xml"));
             if (app == null) return null;
+
+            // Release resources
+            archive.Dispose();
                 
             return app;
         }
@@ -219,20 +272,19 @@ namespace Bootloader.ViewModel
             if (NewerApp.Id != CurrentApp.Id) return false;
             if (NewerApp.Key != CurrentApp.Key) return false;
 
-            // Wait for process to be killed if process ID is given
-            if(IsProcessIdGiven)
-            {
-                try
-                {
-                    Process process = Process.GetProcessById(CallingProcessId);
-
-                    // If a process is found, then it was not killed
-                    return false;
-                }
-                catch { }
-            }
+            // The calling process must be given and must have alread exited
+            if (!IsProcessGiven) return false;
+            if (CallingProcess != null && !CallingProcess.HasExited) return false;
 
             return true;
+        }
+        
+        private bool IsBootloaderFile(string filename)
+        {
+            foreach (string file in BOOTLOADERFILES)
+                if (filename.Equals(file)) return true;
+
+            return false;
         }
         #endregion
 
@@ -245,6 +297,19 @@ namespace Bootloader.ViewModel
             {
                 handler(this, new PropertyChangedEventArgs(name));
             }
+        }
+
+        private void CallingProcess_Exited(object sender, EventArgs e)
+        {
+            // Now that the process has exited, everything should be ready for an update
+            UpdateApplication();
+        }
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            // If this line is reach, the bootloading has lasted too long
+            // and yet not initiated. Kill the bootloader.
+            Process.GetCurrentProcess().Kill();
         }
 
         #endregion

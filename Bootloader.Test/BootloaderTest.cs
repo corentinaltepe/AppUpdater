@@ -1,6 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bootloader.ViewModel;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Bootloader.Test
 {
@@ -15,15 +17,26 @@ namespace Bootloader.Test
             // Create the VM & assign filename
             MainViewModel vm = new MainViewModel();
             Assert.IsNotNull(vm.CurrentApp);
-            Assert.AreEqual("Updating Application1", vm.Title);
+            Assert.AreEqual("Updating Japanese Dive Planner", vm.Title);
 
-            Assert.IsFalse(vm.IsProcessIdGiven);
-            vm.CallingProcessId = 9999;
-            Assert.IsTrue(vm.IsProcessIdGiven);
+            Assert.IsFalse(vm.IsProcessGiven);
+
+            // Get the calling process, if still active
+            Process caller = null;
+            try {
+                //caller = Process.GetProcessById(8548);
+            }
+            catch { }
+            vm.CallingProcess = caller;
+
+            Assert.IsTrue(vm.IsProcessGiven);
 
             vm.Filename = filename;
             Assert.IsNotNull(vm.NewerApp);
-            
+
+            vm.UpdateApplication();
+
+            Thread.Sleep(100000);
         }
     }
 }

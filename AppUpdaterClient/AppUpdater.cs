@@ -192,6 +192,9 @@ namespace AppUpdaterClient
             if (showBootloader) arguments = "-show " + arguments;
             arguments += " " + Process.GetCurrentProcess().Id.ToString();
             Process.Start("Bootloader.exe", arguments);
+
+            // May not be clean. Kills the current process in which the client is embedded (the app)
+            Process.GetCurrentProcess().Kill();
         }
         #endregion
 
