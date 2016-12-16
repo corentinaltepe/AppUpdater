@@ -6,7 +6,33 @@
         xmlns:local="clr-namespace:Bootloader"
         mc:Ignorable="d"
         Title="{Binding Title}" Height="350" Width="525">
+
+    <Window.Resources>
+        <DataTemplate x:Key="AppTemplate">
+            <StackPanel>
+                <TextBlock Text="Name: " />
+                <TextBlock Text="Version"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+    
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ContentControl Grid.Row="0" Grid.Column="0"
+                            Content="{Binding Path=CurrentApp}"
+                            ContentTemplate="{StaticResource AppTemplate}"/>
+            <ContentControl Grid.Row="0" Grid.Column="1"
+                            Content="{Binding Path=CurrentApp}"
+                            ContentTemplate="{StaticResource AppTemplate}"/>
+        </Grid>
         
     </Grid>
 </Window>

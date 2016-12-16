@@ -17,17 +17,35 @@ namespace Bootloader
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var app = new MainWindow();
+            System.Diagnostics.Debugger.Launch();
             var context = new MainViewModel();
-            app.DataContext = context;
-            app.Show();
-
-            if (e.Args.Length == 1) //make sure an argument is passed
+            
+            foreach(string arg in e.Args)
             {
-                FileInfo file = new FileInfo(e.Args[0]);
-                if (file.Exists) //make sure it's actually a file
+                int processId;
+
+                // Show UI
+                if(arg.Equals("-show"))
                 {
-                    ((MainViewModel)app.DataContext).Title = file.FullName;
+                    var app = new MainWindow();
+                    app.DataContext = context;
+                    app.Show();
+                }
+
+                // Path to the .zip
+                else if(File.Exists(arg))
+                {
+                    FileInfo file = new FileInfo(arg);
+                    if (file.Exists) //make sure it's actually a file
+                    {
+                        context.Filename = file.FullName;
+                    }
+                }
+
+                // Process ID to be killed before update
+                else if(int.TryParse(arg, out processId))
+                {
+                    context.CallingProcessId = processId;
                 }
             }
         }

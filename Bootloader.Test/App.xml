@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<App>
+  <!-- Unique identifier of the application. Must NOT be sent explicitly to the API -->
+  <!-- Instead, when transmitting to the API, encrypt it with the KEY -->
+  <!-- 32-byte (16 characters) ID -->
+  <Id>ujrWZlyKQ4FLAS49</Id>
+
+  <!-- Encryption key, used to encrypt the App ID. Never send the key to the API. -->
+  <!-- This key and the ID must be copied to the server and be identical -->
+  <!-- 32-byte (16 characters) key -->
+  <Key>tSzmfr1C35YAYI6r</Key>
+  
+  <Name>Application1</Name>
+  <VersionStr>v0.0.01</VersionStr>
+  <Version>1</Version>
+  <Supported>true</Supported>
+  <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
+  <Filename>sample_JDP_v0.0.01.zip</Filename>
+  <Filesize>2188718</Filesize>
+</App>

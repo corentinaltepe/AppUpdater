@@ -17,6 +17,7 @@ namespace AppUpdaterClient
 {
     public class AppUpdater : INotifyPropertyChanged
     {
+        #region Properties
         // Address and port of the server hosting AppUpdaterService
         public string ServerAddress { get; set; }
 
@@ -49,6 +50,9 @@ namespace AppUpdaterClient
 
         // Filename (and path) to the newly downloaded app
         public string DownloadedFilename { get; set; }
+        #endregion
+
+
 
         #region Constructors
         public AppUpdater(string serverAddress)
@@ -169,8 +173,12 @@ namespace AppUpdaterClient
                 Console.WriteLine(e.Message);
             }
         }
-        
+
         public void InstallUpdate()
+        {
+            InstallUpdate(false);
+        }
+        public void InstallUpdate(bool showBootloader)
         {
             // Run a few checks on the validity and existence of the file
             if (!IsUpdateDownloaded) return;
@@ -180,10 +188,10 @@ namespace AppUpdaterClient
             if (!info.Extension.Equals(".zip")) return;
 
             // Start Bootloader
-            string[] arguments = { CurrentApp.ToXML(),
-                                   NewerApp.ToXML(),
-                                   DownloadedFilename };
-            Process.Start("Bootloader.exe");
+            string arguments = DownloadedFilename;
+            if (showBootloader) arguments = "-show " + arguments;
+            arguments += " " + Process.GetCurrentProcess().Id.ToString();
+            Process.Start("Bootloader.exe", arguments);
         }
         #endregion
 
