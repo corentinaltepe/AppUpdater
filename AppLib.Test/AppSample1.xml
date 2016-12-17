@@ -14,7 +14,7 @@
   <Name>My Application Name</Name>
   <VersionStr>v0.0.01</VersionStr>
   <Version>1</Version>
-  <PublishDate>2016-12-17 18:00:00</PublishDate>
+  <PublishDate>2016-12-17T18:00:00</PublishDate>
 
   <!-- Only relevant on the Server App_Data/AppList.xml -->
   <!-- On the client App.xml file, keep each value to 0 -->

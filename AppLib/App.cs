@@ -31,7 +31,7 @@ namespace AppLib
         public string PublishDateString
         {
             get { return this.PublishDate.ToString("yyyy-MM-dd HH:mm:ss"); }
-            set { this.PublishDate = DateTime.ParseExact(value, "yyyy-MM-dd HH:mm:ss", null); }
+            set { this.PublishDate = DateTime.Parse(value); }
         }
 
         // Called before sending the App info to the API client
