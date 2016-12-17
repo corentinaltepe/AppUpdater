@@ -1,4 +1,6 @@
-# AppUpdaterService
+All contributions, discussions, suggestions are warmly welcome.
+
+# AppUpdater
  C# ASP.Net service API, client and bootloader enabling desktop application field updates.
  
  Do you need your .Net desktop applications to automatically update while the users seat and relax? This project is for you. 
