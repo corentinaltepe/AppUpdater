@@ -23,8 +23,16 @@ namespace AppLib
 
         public string Sha256 { get; set; }
         public string Filename { get; set; }
-        public DateTime PublishDate { get; set; }
         public int Filesize { get; set; }
+
+        [XmlIgnore]
+        public DateTime PublishDate { get; set; }
+        [XmlElement("PublishDate")]
+        public string PublishDateString
+        {
+            get { return this.PublishDate.ToString("yyyy-MM-dd HH:mm:ss"); }
+            set { this.PublishDate = DateTime.ParseExact(value, "yyyy-MM-dd HH:mm:ss", null); }
+        }
 
         // Called before sending the App info to the API client
         public App RemoveSensitiveInfo()
