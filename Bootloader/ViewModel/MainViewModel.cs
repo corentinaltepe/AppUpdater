@@ -185,7 +185,10 @@ namespace Bootloader.ViewModel
                 archive.Dispose();
             }
             catch (Exception e)
-            { Console.WriteLine(e.Message); }
+            {
+                File.WriteAllText("log.txt", e.Message + Environment.NewLine + e.StackTrace.ToString());
+                Console.WriteLine(e.Message);
+            }
 
             // Start the Application
             Process.Start(NewerApp.ProcessName + ".exe");
