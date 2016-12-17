@@ -32,7 +32,7 @@ namespace AppUpdaterClient
             set
             {
                 newerApp = value;
-                OnPropertyChanged("NewerApp");
+                OnNewAppAvailable("NewerApp");
             }
         }
 
@@ -44,7 +44,7 @@ namespace AppUpdaterClient
             set
             {
                 isUpdateDownloaded = value;
-                OnPropertyChanged("IsUpdateDownloaded");
+                OnAppDownloaded("IsUpdateDownloaded");
             }
         }
 
@@ -203,6 +203,26 @@ namespace AppUpdaterClient
         protected void OnPropertyChanged(string name)
         {
             PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler NewAppAvailable;
+        protected void OnNewAppAvailable(string name)
+        {
+            PropertyChangedEventHandler handler = NewAppAvailable;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+        public event PropertyChangedEventHandler AppDownloaded;
+        protected void OnAppDownloaded(string name)
+        {
+            PropertyChangedEventHandler handler = AppDownloaded;
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(name));
