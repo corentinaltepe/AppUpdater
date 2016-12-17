@@ -140,9 +140,13 @@ namespace AppUpdaterClient
 
         private void HandleResponseToDownloadRequest(IRestResponse<App> response)
         {
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) return;
-            if (response.StatusCode != System.Net.HttpStatusCode.OK) return;
-            if (!response.ContentType.Equals("application/octet-stream")) return;
+            if ((response.StatusCode == System.Net.HttpStatusCode.BadRequest) ||
+                (response.StatusCode != System.Net.HttpStatusCode.OK) ||
+                (!response.ContentType.Equals("application/octet-stream")))
+            {
+                OnDownloadFailed("DownloadedFilename");
+                return;
+            }
             
             try
             {
@@ -150,19 +154,35 @@ namespace AppUpdaterClient
                 byte[] decryptedFile = StringCipher.Decrypt(response.RawBytes, CurrentApp.Key);
 
                 // Verify validity of the file (size and hash)
-                if (decryptedFile.Length != NewerApp.Filesize) return;
+                if (decryptedFile.Length != NewerApp.Filesize)
+                {
+                    OnDownloadFailed("DownloadedFilename");
+                    return;
+                }
                 SHA256 mySHA256 = SHA256Managed.Create();
                 byte[] hash = mySHA256.ComputeHash(decryptedFile);
-                if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256)) return;
+                if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256))
+                {
+                    OnDownloadFailed("DownloadedFilename");
+                    return;
+                }
 
                 // Download the file to TMP folder
                 string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D") + ".zip";
                 File.WriteAllBytes(filename, decryptedFile);
 
                 // Verify the file was written properly
-                if (!File.Exists(filename)) return;
+                if (!File.Exists(filename))
+                {
+                    OnDownloadFailed("DownloadedFilename");
+                    return;
+                }
                 FileInfo info = new FileInfo(filename);
-                if (info.Length != NewerApp.Filesize) return;
+                if (info.Length != NewerApp.Filesize)
+                {
+                    OnDownloadFailed("DownloadedFilename");
+                    return;
+                }
 
                 // Notify app of the newly downloaded app
                 DownloadedFilename = filename;
@@ -171,6 +191,10 @@ namespace AppUpdaterClient
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
+                {
+                    OnDownloadFailed("DownloadedFilename");
+                    return;
+                }
             }
         }
 
@@ -223,6 +247,15 @@ namespace AppUpdaterClient
         protected void OnAppDownloaded(string name)
         {
             PropertyChangedEventHandler handler = AppDownloaded;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+        public event PropertyChangedEventHandler DownloadFailed;
+        protected void OnDownloadFailed(string name)
+        {
+            PropertyChangedEventHandler handler = DownloadFailed;
             if (handler != null)
             {
                 handler(this, new PropertyChangedEventArgs(name));
