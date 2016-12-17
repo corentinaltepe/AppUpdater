@@ -1,14 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Apps>
   <App>
+    <!-- Unique identifier of the application. Must NOT be sent explicitly to the API -->
+    <!-- Instead, when transmitting to the API, encrypt it with the KEY -->
+    <!-- 32-byte (16 characters) ID -->
     <Id>ujrWZlyKQ4FLAS49</Id>
+
+    <!-- Encryption key, used to encrypt the App ID. Never send the key to the API. -->
+    <!-- This key and the ID must be copied to the server and be identical -->
+    <!-- 32-byte (16 characters) key -->
     <Key>tSzmfr1C35YAYI6r</Key>
-    <Name>Application1</Name>
-    <VersionStr>v0.0.05</VersionStr>
-    <Version>5</Version>
+
+    <ProcessName>JapaneseDivePlannerUI</ProcessName>
+    <Name>Kaikon Dive Planner</Name>
+    <VersionStr>v0.4.02.02</VersionStr>
+
+    <!-- Increment at every release -->
+    <Version>2</Version>
+
     <Supported>true</Supported>
-    <Sha256>82e281f5664692e2b3954a39d369121fff4313a91a21988e0ec6b2e04d697941</Sha256>
-    <Filename>sample_JDP_v0.0.01.zip</Filename>
-    <Filesize>2188718</Filesize>
+    <Sha256>5f1d7486ea7c2a7247a32ebff2df1a919098180043df6c6d611175841aff634c</Sha256>
+
+    <!--! Only needed on the server side -->
+    <Filename>sampleKDP_v0.4.02.02.zip</Filename>
+    <Filesize>2297666</Filesize>
   </App>
 </Apps>

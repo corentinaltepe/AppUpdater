@@ -18,7 +18,6 @@ namespace Bootloader
     {
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            System.Diagnostics.Debugger.Launch();
             var context = new MainViewModel();
             
             foreach(string arg in e.Args)
