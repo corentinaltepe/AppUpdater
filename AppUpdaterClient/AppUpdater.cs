@@ -114,7 +114,7 @@ namespace AppUpdaterClient
             request.AddParameter("id", CurrentApp.EncryptedId());
             request.AddParameter("action", "download");
             
-            var asyncHandle = client.ExecuteAsync<App>(request, response => {
+            var asyncHandle = client.ExecuteAsync(request, response => {
                 HandleResponseToDownloadRequest(response);
             });
         }
@@ -138,7 +138,7 @@ namespace AppUpdaterClient
             }
         }
 
-        private void HandleResponseToDownloadRequest(IRestResponse<App> response)
+        private void HandleResponseToDownloadRequest(IRestResponse response)
         {
             if ((response.StatusCode == System.Net.HttpStatusCode.BadRequest) ||
                 (response.StatusCode != System.Net.HttpStatusCode.OK) ||
