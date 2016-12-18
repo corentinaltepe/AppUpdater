@@ -24,21 +24,21 @@ All contributions, discussions, suggestions are warmly welcome.
  ```c#
  // Create an updater client instance. 
  // Give the address and port (xxxx) of your server hosting AppUpdaterService
- AppUpdater updater = new AppUpdater("http://my-server.com:xxxx/api/");
+ AppUpdater Updater = new AppUpdater("http://my-server.com:xxxx/api/");
  
  // Check for update and call HandleNewerAppResponse when response is received
- AppUpdater.CheckNewerVersionAvailableAsync(
+ Updater.CheckNewerVersionAvailableAsync(
                 updateAvailable => HandleNewerAppResponse(updateAvailable));
 				
 				
-// Called when an answer is receive from the API, whether a newer app is available or not
+// Called when an answer is received from the API, whether a newer app is available or not
 private void HandleNewerAppResponse(bool updateAvailable)
 {
 	if (updateAvailable)
 	{
 		// NewerApp contains only metadata about your app.
 		// It was not downloaded yet.
-		var app = AppUpdater.NewerApp;
+		var app = Updater.NewerApp;
 		
 		Console.WriteLine("Name: " + app.Name);
 		Console.WriteLine("VersionStr: " + app.VersionStr);
@@ -61,13 +61,18 @@ Updater.DownloadAsync(downloaded => Updater_AppDownloaded(downloaded));
 private void Updater_AppDownloaded(bool appDownloaded)
 {
 	if(appDownloaded)
-		// This call will kill the running application's process.
-		// Make sure you have saved your work before calling InstallUpdate()
-		// or prompt the user with a Yes/No dialog
-		Updater.InstallUpdate();
+		Console.WriteLine("Update downloaded and available at "
+							Updater.DownloadedFilename);
 	else
 		Console.WriteLine("Error occured during download.");
 }
  ```
  
+ Installing update (if previously downloaded):
+ ```c#
+// This call will kill the running application's process.
+// Make sure you have saved your work before calling InstallUpdate()
+// or prompt the user with a Yes/No dialog
+Updater.InstallUpdate();
+ ```
 More info to come
