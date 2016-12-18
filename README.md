@@ -76,7 +76,7 @@ private void Updater_AppDownloaded(bool appDownloaded)
 Updater.InstallUpdate();
  ```
 
- #TODOs & Ideas
+# TODOs & Ideas
  * Report progress of download of the update file. Using stream?
  * Create API & Web UI to upload new apps and updates
  * Create API to manage apps and updates
