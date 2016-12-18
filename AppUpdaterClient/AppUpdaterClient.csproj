@@ -53,10 +53,6 @@
       <Project>{b9cce9de-d46e-4a56-9941-83e55f20ea59}</Project>
       <Name>AppLib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Bootloader\Bootloader.csproj">
-      <Project>{11d9ccc6-18a5-4be1-b7ca-99338485ca50}</Project>
-      <Name>Bootloader</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

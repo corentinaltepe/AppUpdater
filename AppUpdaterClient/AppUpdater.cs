@@ -32,7 +32,7 @@ namespace AppUpdaterClient
             set
             {
                 newerApp = value;
-                OnNewAppAvailable("NewerApp");
+                OnPropertyChanged("NewerApp");
             }
         }
 
@@ -44,7 +44,7 @@ namespace AppUpdaterClient
             set
             {
                 isUpdateDownloaded = value;
-                OnAppDownloaded("IsUpdateDownloaded");
+                OnPropertyChanged("IsUpdateDownloaded");
             }
         }
 
@@ -88,24 +88,25 @@ namespace AppUpdaterClient
         
         // Check on the server if a newer version is available for the given app
         // If newer app is available, assign it to this.NewerApp
-        public void CheckNewerVersionAvailable()
+        public void CheckNewerVersionAvailableAsync(Action<bool> callback)
         {
             // Encrypt the AppID
 
             var client = new RestClient(ServerAddress);
             var request = new RestRequest("/Apps/", Method.POST);
             request.AddParameter("id", CurrentApp.EncryptedId());
-
-            var asyncHandle = client.ExecuteAsync<App>(request, response => {
-                HandleServerResponse(response);
-            });
-
+            
+            // Long call (potentially)
+            var response = client.Execute<App>(request);
+            
+            // Function has ended - return whether a newer application was found, or not
+            callback(HandleServerResponseForNewerApp(response));
         }
 
         // If a newer app is available, start downloading
         // It can take a very long time to execute since the client is downloading a file from
         // the server
-        public void Download()
+        public void DownloadAsync(Action<bool> callback)
         {
             if (NewerApp == null) return;
             
@@ -113,17 +114,28 @@ namespace AppUpdaterClient
             var request = new RestRequest("/Apps/", Method.POST);
             request.AddParameter("id", CurrentApp.EncryptedId());
             request.AddParameter("action", "download");
-            
-            var asyncHandle = client.ExecuteAsync(request, response => {
-                HandleResponseToDownloadRequest(response);
-            });
+
+            // Long call (potentially)
+            var response = client.Execute(request);
+
+            // Function has ended - return whether the app was donwloaded
+            // properly and verified, or not
+            callback(HandleResponseToDownloadRequest(response));
         }
 
-        private void HandleServerResponse(IRestResponse<App> response)
+        /// <summary>
+        /// Reads the response from the API. If a newer version is available,
+        /// stores the information into this.NewerApp.
+        /// Returns true if the server has replied with a newer version available.
+        /// Returns false otherwise (errors, no app available, id wrong, etc.)
+        /// </summary>
+        /// <param name="response">RestSharpt IRestResponse from the API</param>
+        /// <returns>True if a newer version is available</returns>
+        private bool HandleServerResponseForNewerApp(IRestResponse<App> response)
         {
-            if (response.Data == null) return;
-            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) return;
-            if (response.StatusCode != System.Net.HttpStatusCode.OK) return;
+            if (response.Data == null) return false;
+            if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) return false;
+            if (response.StatusCode != System.Net.HttpStatusCode.OK) return false;
 
 
             App serverAppInfo = response.Data;
@@ -133,20 +145,22 @@ namespace AppUpdaterClient
             {
                 // If the app on the server is more recent (Version higher)
                 if (serverAppInfo.Version > this.CurrentApp.Version)
+                {
                     // the notify by placing the info in thi.NewerApp
                     this.NewerApp = serverAppInfo;
+                    return true;
+                }
             }
+
+            return false;
         }
 
-        private void HandleResponseToDownloadRequest(IRestResponse response)
+        private bool HandleResponseToDownloadRequest(IRestResponse response)
         {
             if ((response.StatusCode == System.Net.HttpStatusCode.BadRequest) ||
                 (response.StatusCode != System.Net.HttpStatusCode.OK) ||
                 (!response.ContentType.Equals("application/octet-stream")))
-            {
-                OnDownloadFailed("DownloadedFilename");
-                return;
-            }
+                return false;
             
             try
             {
@@ -154,47 +168,32 @@ namespace AppUpdaterClient
                 byte[] decryptedFile = StringCipher.Decrypt(response.RawBytes, CurrentApp.Key);
 
                 // Verify validity of the file (size and hash)
-                if (decryptedFile.Length != NewerApp.Filesize)
-                {
-                    OnDownloadFailed("DownloadedFilename");
-                    return;
-                }
+                if (decryptedFile.Length != NewerApp.Filesize) return false;
                 SHA256 mySHA256 = SHA256Managed.Create();
                 byte[] hash = mySHA256.ComputeHash(decryptedFile);
-                if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256))
-                {
-                    OnDownloadFailed("DownloadedFilename");
-                    return;
-                }
+                if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256)) return false;
 
                 // Download the file to TMP folder
                 string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D") + ".zip";
                 File.WriteAllBytes(filename, decryptedFile);
 
                 // Verify the file was written properly
-                if (!File.Exists(filename))
-                {
-                    OnDownloadFailed("DownloadedFilename");
-                    return;
-                }
+                if (!File.Exists(filename)) return false;
                 FileInfo info = new FileInfo(filename);
-                if (info.Length != NewerApp.Filesize)
-                {
-                    OnDownloadFailed("DownloadedFilename");
-                    return;
-                }
+                if (info.Length != NewerApp.Filesize) return false;
 
                 // Notify app of the newly downloaded app
                 DownloadedFilename = filename;
                 IsUpdateDownloaded = true;
+
+                // Application properly downloaded and verified. Ready
+                // to call Bootloader anytime.
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                {
-                    OnDownloadFailed("DownloadedFilename");
-                    return;
-                }
+                return false;
             }
         }
 
@@ -232,36 +231,6 @@ namespace AppUpdaterClient
                 handler(this, new PropertyChangedEventArgs(name));
             }
         }
-
-        public event PropertyChangedEventHandler NewAppAvailable;
-        protected void OnNewAppAvailable(string name)
-        {
-            PropertyChangedEventHandler handler = NewAppAvailable;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
-        public event PropertyChangedEventHandler AppDownloaded;
-        protected void OnAppDownloaded(string name)
-        {
-            PropertyChangedEventHandler handler = AppDownloaded;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-        public event PropertyChangedEventHandler DownloadFailed;
-        protected void OnDownloadFailed(string name)
-        {
-            PropertyChangedEventHandler handler = DownloadFailed;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
         #endregion
     }
 }
