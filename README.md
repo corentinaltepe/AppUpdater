@@ -90,4 +90,6 @@ Updater.InstallUpdate();
  * Implement authentication for connection to API
  * Add information in App.xml to display 'what's new'
  * Create a specific script for the bootloader for advanced install configuration
+ * Create NuGet for Visual Studio
+ 
  
