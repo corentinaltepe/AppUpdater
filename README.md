@@ -61,7 +61,7 @@ Updater.DownloadAsync(downloaded => Updater_AppDownloaded(downloaded));
 private void Updater_AppDownloaded(bool appDownloaded)
 {
 	if(appDownloaded)
-		Console.WriteLine("Update downloaded and available at "
+		Console.WriteLine("Update downloaded and available at " + 
 							Updater.DownloadedFilename);
 	else
 		Console.WriteLine("Error occured during download.");
@@ -75,4 +75,19 @@ private void Updater_AppDownloaded(bool appDownloaded)
 // or prompt the user with a Yes/No dialog
 Updater.InstallUpdate();
  ```
-More info to come
+
+ #TODOs & Ideas
+ * Report progress of download of the update file. Using stream?
+ * Create API & Web UI to upload new apps and updates
+ * Create API to manage apps and updates
+ * Enable AppUpdaterService to keep in all previous versions of the app
+ * Write Wiki, Getting Started guide, etc.
+ * Test bootloader in ProgramFiles as Windows may be problematic and protect overwriting files
+ * Version the bootloader
+ * Enable client to update the bootloader
+ * Develop UI for bootloader 
+ * Develop console application for bootloader?
+ * Implement authentication for connection to API
+ * Add information in App.xml to display 'what's new'
+ * Create a specific script for the bootloader for advanced install configuration
+ 
