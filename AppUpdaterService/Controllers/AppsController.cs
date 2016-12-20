@@ -20,6 +20,12 @@ namespace AppUpdaterService.Controllers
         private static string DEBUG_PATH = "C:/inetpub/wwwroot/samplesFolder/";
         private static string RELEASE_PATH = "C:/inetpub/wwwroot/samplesFolder/";
 
+        #region Properties
+        public virtual string AppDomainAppVirtualPath
+        { get{return HttpRuntime.AppDomainAppVirtualPath;}}
+        #endregion
+        
+
         #region HTTP
         // GET: api/Apps
         public IHttpActionResult Get()
@@ -32,10 +38,15 @@ namespace AppUpdaterService.Controllers
         {
             return BadRequest("List of Apps not open.");
         }
-        
-        // POST: api/Apps/id
-        /* Returns the info of the App if id matches an app in the list,
-         * Returns the App file if 'action' key says 'download'. */
+
+        /// <summary>
+        /// Called on a POST api/Apps
+        /// Returns the info of the App if id matches an app in the list,
+        /// returns the App file if 'action' key says 'download'. Error
+        /// message otherwise.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public IHttpActionResult Post(HttpRequestMessage request)
         {
             var message = request.Content.ReadAsStringAsync().Result;
@@ -43,13 +54,12 @@ namespace AppUpdaterService.Controllers
 
             // Read the message, expect an "id" key
             RequestParser parser = new RequestParser(message);
-            string id = parser.FindValue("id");
-            if (id == null) return BadRequest("ID missing or value is null");
+            string encryptedId = parser.FindValue("id");
+            if (encryptedId == null) return BadRequest("ID missing or value is null");
 
             // Find the app information
-            var app = FindAppByEncryptedId(id);
-            if (app == null)
-                return BadRequest("App not found");
+            App app = FindLatestApp(encryptedId);
+            if (app == null) return BadRequest("App not found");
 
             // Read the message, expect an "action" key
             parser = new RequestParser(message);
@@ -96,7 +106,7 @@ namespace AppUpdaterService.Controllers
             XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
 
             // Create a new file stream for reading the XML file
-            FileStream ReadFileStream = new FileStream(HttpRuntime.AppDomainAppPath + "/App_Data/AppsList.xml",
+            FileStream ReadFileStream = new FileStream(AppDomainAppVirtualPath + "/App_Data/AppsList.xml",
                                                         FileMode.Open, FileAccess.Read, FileShare.Read);
 
             // Load the object saved above by using the Deserialize function
@@ -108,7 +118,13 @@ namespace AppUpdaterService.Controllers
             return apps;
         }
 
-        private App FindAppByEncryptedId(string encryptedId)
+        /// <summary>
+        /// Goes through each app in AppsList.xml until the pair Key/Id
+        /// matches encryptedId.
+        /// </summary>
+        /// <param name="encrypted">Id of the app, encrypted with its own key.</param>
+        /// <returns>Decrypted ID of the App if any found. Null otherwise.</returns>
+        private string FindAppDecryptedId(string encryptedId)
         {
             AppList apps = ReadListOfApps();
             foreach (App app in apps.Items)
@@ -119,13 +135,45 @@ namespace AppUpdaterService.Controllers
                     string decryptedId = app.DecryptedId(encryptedId);
 
                     if (app.Id.Equals(decryptedId))
-                        return app;
+                        return app.Id;
                 }
                 catch { return null; }
             }
-               
 
             return null;
+        }
+
+        /// <summary>
+        /// Find all apps with the given (encrypted) Id. First finds 1 app with the
+        /// matching pair ID/Key, then returns all apps with the same Id. If not found,
+        /// returns null.
+        /// </summary>
+        /// <param name="encryptedId">Id of the app, encrypted with its own key.</param>
+        /// <returns>Decrypted ID of the App if any found. Null otherwise.</param>
+        /// <returns>List of apps with the given (encrypted) Id.</returns>
+        private List<App> FindAppsByEncryptedId(string encryptedId)
+        {
+            string decryptedId = FindAppDecryptedId(encryptedId);
+            if (decryptedId == null) return null;
+
+            List<App> selectedApps = new List<App>();
+            AppList apps = ReadListOfApps();
+            foreach (App app in apps.Items)
+            {
+                if (app.Id.Equals(decryptedId))
+                    selectedApps.Add(app);
+            }
+
+            return selectedApps;
+        }
+
+        private App FindLatestApp(string encryptedId)
+        {
+            // Return the app with encrypteId with highest version number
+            var res = FindAppsByEncryptedId(encryptedId);
+            if (res == null) return null;
+
+            return res.OrderByDescending(i => i.Version).FirstOrDefault();
         }
 
         private AppContent FindAppContentByApp(App app)

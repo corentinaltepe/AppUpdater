@@ -10,9 +10,13 @@ namespace AppLib
     [XmlRoot("Apps")]
     public class AppList
     {
-        public AppList() { Items = new List<App>(); }
-        [XmlElement("App")]
+        /*[XmlElement("App")]*/
         public List<App> Items { get; set; }
+
+        public AppList()
+        {
+            Items = new List<App>();
+        }
 
         public App FindAppByID(string id)
         {
