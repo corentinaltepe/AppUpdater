@@ -60,19 +60,32 @@ namespace AppUpdaterClient
             this.ServerAddress = serverAddress;
             this.CurrentApp = ReadAppXML();
         }
+        public AppUpdater(string serverAddress, string appFilename)
+        {
+            this.ServerAddress = serverAddress;
+            this.CurrentApp = ReadAppXML(appFilename);
+        }
 
         #endregion
 
         #region Methods
-        private App ReadAppXML()
+        /// <summary>
+        /// Loads the app described in XML file.
+        /// By default, returns the app contained in App.xml.
+        /// Throws exception if no file is found.
+        /// </summary>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        private App ReadAppXML(string filename = "App.xml")
         {
             XmlSerializer SerializerObj = new XmlSerializer(typeof(App));
 
             // Check App.xml exists
             string pathtoAppXml = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            pathtoAppXml = Path.Combine(pathtoAppXml, "App.xml");
+            pathtoAppXml = Path.Combine(pathtoAppXml, filename);
             if (!File.Exists(pathtoAppXml))
-                throw new FileNotFoundException("File App.xml not found. Make sure to create one containing the information about your application.");
+                throw new FileNotFoundException("File: " + filename + 
+                    " not found. Make sure to create one containing the information about your application.");
 
             // Create a new file stream for reading the XML file
             FileStream ReadFileStream = new FileStream(pathtoAppXml, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -85,9 +98,13 @@ namespace AppUpdaterClient
 
             return app;
         }
-        
-        // Check on the server if a newer version is available for the given app
-        // If newer app is available, assign it to this.NewerApp
+
+        /// <summary>
+        /// Check on the server if a newer version is available for the given app
+        /// If newer app is available, assign it to this.NewerApp
+        /// </summary>
+        /// <param name="callback">Callback: true if the server has replied with a newer version
+        /// available. False otherwise.</param>
         public void CheckNewerVersionAvailableAsync(Action<bool> callback)
         {
             // Encrypt the AppID

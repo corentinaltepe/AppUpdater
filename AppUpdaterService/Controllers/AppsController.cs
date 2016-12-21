@@ -17,15 +17,23 @@ namespace AppUpdaterService.Controllers
 {
     public class AppsController : ApiController
     {
-        private static string DEBUG_PATH = "C:/inetpub/wwwroot/samplesFolder/";
-        private static string RELEASE_PATH = "C:/inetpub/wwwroot/samplesFolder/";
+        private static string DEBUG_PATH = "C:/inetpub/wwwroot/App_Data/Applications/";
+        private static string RELEASE_PATH = "C:/inetpub/wwwroot/App_Data/Applications/";
 
         #region Properties
-        public virtual string AppDomainAppVirtualPath
-        { get{return HttpRuntime.AppDomainAppVirtualPath;}}
+        private string appDomainAppVirtualPath = "";
+        public string AppDomainAppVirtualPath
+        {
+            get {
+                if (string.IsNullOrEmpty(appDomainAppVirtualPath))
+                    return HttpRuntime.AppDomainAppVirtualPath;
+                else
+                    return appDomainAppVirtualPath;
+            }
+            set { appDomainAppVirtualPath = value; }
+        }
         #endregion
         
-
         #region HTTP
         // GET: api/Apps
         public IHttpActionResult Get()
@@ -104,6 +112,8 @@ namespace AppUpdaterService.Controllers
         private AppList ReadListOfApps()
         {
             XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
+
+            File.WriteAllText(AppDomainAppVirtualPath + "/App_Data/log.txt", "log: " + AppDomainAppVirtualPath + "/App_Data/AppsList.xml");
 
             // Create a new file stream for reading the XML file
             FileStream ReadFileStream = new FileStream(AppDomainAppVirtualPath + "/App_Data/AppsList.xml",

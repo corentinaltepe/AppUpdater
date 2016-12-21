@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<App>
+  <Id>ujrWZlyKQ4FLAS4a</Id>
+  <Key>tSzmfr1C35YAYI6r</Key>
+
+  <ProcessName>MyExecutableName</ProcessName>
+  <Name>My Application Name</Name>
+  <VersionStr>v0.0.01</VersionStr>
+  <Version>1</Version>
+
+  <Sha256>0</Sha256>
+  <Filename>0</Filename>
+  <Filesize>0</Filesize>
+
+  <Supported>true</Supported>
+</App>
