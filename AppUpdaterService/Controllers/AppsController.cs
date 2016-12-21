@@ -22,11 +22,11 @@ namespace AppUpdaterService.Controllers
 
         #region Properties
         private string appDomainAppVirtualPath = "";
-        public string AppDomainAppVirtualPath
+        public string AppDomainAppPath
         {
             get {
                 if (string.IsNullOrEmpty(appDomainAppVirtualPath))
-                    return HttpRuntime.AppDomainAppVirtualPath;
+                    return HttpContext.Current.Server.MapPath("~");
                 else
                     return appDomainAppVirtualPath;
             }
@@ -112,11 +112,9 @@ namespace AppUpdaterService.Controllers
         private AppList ReadListOfApps()
         {
             XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
-
-            File.WriteAllText(AppDomainAppVirtualPath + "/App_Data/log.txt", "log: " + AppDomainAppVirtualPath + "/App_Data/AppsList.xml");
-
+            
             // Create a new file stream for reading the XML file
-            FileStream ReadFileStream = new FileStream(AppDomainAppVirtualPath + "/App_Data/AppsList.xml",
+            FileStream ReadFileStream = new FileStream(AppDomainAppPath + "bin/App_Data/AppsList.xml",
                                                         FileMode.Open, FileAccess.Read, FileShare.Read);
 
             // Load the object saved above by using the Deserialize function

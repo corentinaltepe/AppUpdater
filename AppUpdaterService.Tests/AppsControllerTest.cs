@@ -39,7 +39,7 @@ namespace AppUpdaterService.Tests
                 Encoding.UTF8, "application/json");
 
             // Changing the folder path in order to run the unit test
-            ctl.AppDomainAppVirtualPath = AppDomain.CurrentDomain.BaseDirectory;
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory;
 
             // 
             IHttpActionResult actionResult = ctl.Post(request);
@@ -74,7 +74,7 @@ namespace AppUpdaterService.Tests
                 Encoding.UTF8, "application/json");
 
             // Changing the folder path in order to run the unit test
-            ctl.AppDomainAppVirtualPath = AppDomain.CurrentDomain.BaseDirectory;
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory;
 
             // 
             IHttpActionResult actionResult = ctl.Post(request);
@@ -97,7 +97,7 @@ namespace AppUpdaterService.Tests
                 Encoding.UTF8, "application/json");
 
             // Changing the folder path in order to run the unit test
-            ctl.AppDomainAppVirtualPath = AppDomain.CurrentDomain.BaseDirectory;
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory;
             
             IHttpActionResult actionResult = ctl.Post(request);
             var contentResult = actionResult as OkNegotiatedContentResult<App>;
