@@ -39,7 +39,7 @@ namespace AppUpdaterService.Tests
                 Encoding.UTF8, "application/json");
 
             // Changing the folder path in order to run the unit test
-            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory;
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory + "/";
 
             // 
             IHttpActionResult actionResult = ctl.Post(request);
@@ -74,7 +74,7 @@ namespace AppUpdaterService.Tests
                 Encoding.UTF8, "application/json");
 
             // Changing the folder path in order to run the unit test
-            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory;
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory + "/";
 
             // 
             IHttpActionResult actionResult = ctl.Post(request);
@@ -97,7 +97,7 @@ namespace AppUpdaterService.Tests
                 Encoding.UTF8, "application/json");
 
             // Changing the folder path in order to run the unit test
-            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory;
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory + "/";
             
             IHttpActionResult actionResult = ctl.Post(request);
             var contentResult = actionResult as OkNegotiatedContentResult<App>;
@@ -105,6 +105,32 @@ namespace AppUpdaterService.Tests
             // Assert
             Assert.IsNotNull(contentResult);
         }
+
+        [TestMethod]
+        public void PostTest4()
+        {
+            // Arrange
+            var ctl = new AppsController();
+            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/api/Apps");
+            request.SetConfiguration(new HttpConfiguration());
+
+            App app = new App();
+            app.Key = "tSzmfr1C35YAYI6r";
+            app.Id = "ujrWZlyKQ4FLAS4b";
+
+            request.Content = new StringContent("id=" + app.EncryptedId() + "&action=download",
+                Encoding.UTF8, "application/json");
+
+            // Changing the folder path in order to run the unit test
+            ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory + "/";
+
+            IHttpActionResult actionResult = ctl.Post(request);
+            var contentResult = actionResult as ResponseMessageResult;
+
+            // Assert
+            Assert.IsNotNull(contentResult);
+        }
+
 
     }
 }

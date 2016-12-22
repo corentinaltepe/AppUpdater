@@ -18,7 +18,7 @@
       <Supported>true</Supported>
     </App>
     
-    <!-- App used in DownloadNewerApplicationTest -->
+    <!-- App used in DownloadNewerApplicationTest1 -->
     <App>
       <Id>ujrWZlyKQ4FLAS4a</Id>
       <Key>tSzmfr1C35YAYI6r</Key>
@@ -30,6 +30,23 @@
 
       <Sha256>0</Sha256>
       <Filename>0</Filename>
+      <Filesize>0</Filesize>
+
+      <Supported>true</Supported>
+    </App>
+  
+    <!-- App used in DownloadNewerApplicationTest2 -->
+    <App>
+      <Id>ujrWZlyKQ4FLAS4b</Id>
+      <Key>tSzmfr1C35YAYI6r</Key>
+
+      <ProcessName>MyExecutableName</ProcessName>
+      <Name>My Application Name</Name>
+      <VersionStr>v0.0.01</VersionStr>
+      <Version>2</Version>
+
+      <Sha256>0</Sha256>
+      <Filename>SampleApp3.zip</Filename>
       <Filesize>0</Filesize>
 
       <Supported>true</Supported>

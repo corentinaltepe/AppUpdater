@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Collections.Generic;
+using AppLib;
 
 namespace AppUpdaterClient.Test
 {
@@ -12,11 +13,31 @@ namespace AppUpdaterClient.Test
 
         private bool CallbackExecuted = false;
         private bool NewAppFound = false;
+        private bool AppDownloaded = false;
 
+        /// <summary>
+        /// Callback once the server has replied or failed to reply to the 
+        /// request for app information for update.
+        /// res: True if newer app is available. False otherwise 
+        /// (error or no update available).
+        /// </summary>
+        /// <param name="res"></param>
         private void CheckNewerVersionAvailableCallback(bool res)
         {
             CallbackExecuted = true;
             NewAppFound = res;
+        }
+
+        /// <summary>
+        /// Callback once the application has been downloaded (or failed to).
+        /// Res: true if the application was properly downloaded. False otherwise
+        /// (no file available, sha256 wrong, decryption failed, etc).
+        /// </summary>
+        /// <param name="res"></param>
+        private void DownloadNewAppCallback(bool res)
+        {
+            CallbackExecuted = true;
+            AppDownloaded = res;
         }
 
 
@@ -33,8 +54,8 @@ namespace AppUpdaterClient.Test
             Assert.IsFalse(NewAppFound);
         }
         
-        [TestMethod, Timeout(100000)]
-        public void DownloadNewerApplicationTest()
+        [TestMethod, Timeout(4000)]
+        public void DownloadNewerApplicationTest1()
         {
             // Start identical to test above
             AppUpdater updater = new AppUpdater(SERVER, "App1.xml");
@@ -46,17 +67,96 @@ namespace AppUpdaterClient.Test
             // Newer app should have been found
             Assert.IsTrue(NewAppFound);
 
-            /*
-            updater.CheckNewerVersionAvailable();
-            while (receivedEvents.Count == 0) Thread.Sleep(20);
-            Assert.AreEqual("NewerApp", receivedEvents[0]);
+            // Now request to download app (.zip)
+            CallbackExecuted = false;
+            updater.DownloadAsync(res => DownloadNewAppCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
 
-            // Now give the order to download and expect a notification
-            updater.Download();
-            while (receivedEvents.Count == 1) Thread.Sleep(20);
-            Assert.AreEqual("IsUpdateDownloaded", receivedEvents[1]);*/
+            // The download should have failed since no .zip file is available
+            Assert.IsFalse(AppDownloaded);
+        }
 
-            updater.InstallUpdate();
+        [TestMethod, Timeout(4000)]
+        public void DownloadNewerApplicationTest2()
+        {
+            // Current App's filename is given but not the filesize. Expected error message from the server.
+            App currentApp = AppUpdater.ReadAppXML();
+            currentApp.Id = "ujrWZlyKQ4FLAS4b";
+            currentApp.Filename = "SampleApp3.zip";
+            AppUpdater updater = new AppUpdater(SERVER, currentApp);
+
+            // Check for update and run the callback
+            updater.CheckNewerVersionAvailableAsync(res => CheckNewerVersionAvailableCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
+
+            // Newer app should have been found
+            Assert.IsTrue(NewAppFound);
+
+            // Now request to download app (.zip)
+            CallbackExecuted = false;
+            updater.DownloadAsync(res => DownloadNewAppCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
+
+            // The download should have failed since no .zip file is available
+            Assert.IsFalse(AppDownloaded);
+        }
+
+        [TestMethod, Timeout(4000)]
+        public void DownloadNewerApplicationTest3()
+        {
+            // Current App's filename and filesize is given but not the sha256. 
+            // Expected error message from the server.
+            App currentApp = AppUpdater.ReadAppXML();
+            currentApp.Id = "ujrWZlyKQ4FLAS4b";
+            currentApp.Filename = "SampleApp3.zip";
+            currentApp.Filesize = 185;
+            AppUpdater updater = new AppUpdater(SERVER, currentApp);
+
+            // Check for update and run the callback
+            updater.CheckNewerVersionAvailableAsync(res => CheckNewerVersionAvailableCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
+
+            // Newer app should have been found
+            Assert.IsTrue(NewAppFound);
+
+            // Now request to download app (.zip)
+            CallbackExecuted = false;
+            updater.DownloadAsync(res => DownloadNewAppCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
+
+            // The download should have failed since no .zip file is available
+            Assert.IsFalse(AppDownloaded);
+        }
+
+        [TestMethod, Timeout(10000)]
+        public void DownloadNewerApplicationTest4()
+        {
+            // Current App's filename, filesize and sha256 given. 
+            // Expected application to be downloaded to tmp folder.
+            App currentApp = AppUpdater.ReadAppXML();
+            currentApp.Id = "ujrWZlyKQ4FLAS4b";
+            currentApp.Filename = "SampleApp3.zip";
+            currentApp.Filesize = 185;
+            currentApp.Sha256 = "fb80b8ba036a08207c26d6ca84ef6ecd6c498e784393a93ddcdd3a53deb0f490";
+            AppUpdater updater = new AppUpdater(SERVER, currentApp);
+
+            // Check for update and run the callback
+            updater.CheckNewerVersionAvailableAsync(res => CheckNewerVersionAvailableCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
+
+            // Newer app should have been found
+            Assert.IsTrue(NewAppFound);
+
+            // Now request to download app (.zip)
+            CallbackExecuted = false;
+            updater.DownloadAsync(res => DownloadNewAppCallback(res));
+            while (!CallbackExecuted) Thread.Sleep(20);
+
+            // The download should have failed since no .zip file is available
+            Assert.IsTrue(AppDownloaded);
+
+            // Remove file from TMP folder
+            Assert.IsTrue(updater.RemoveAppFile());
         }
 
         [TestMethod]

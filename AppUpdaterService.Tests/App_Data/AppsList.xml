@@ -34,5 +34,22 @@
 
       <Supported>true</Supported>
     </App>
+
+    <!-- App used in DownloadNewerApplicationTest2 -->
+    <App>
+      <Id>ujrWZlyKQ4FLAS4b</Id>
+      <Key>tSzmfr1C35YAYI6r</Key>
+
+      <ProcessName>MyExecutableName</ProcessName>
+      <Name>My Application Name</Name>
+      <VersionStr>v0.0.01</VersionStr>
+      <Version>2</Version>
+
+      <Sha256>fb80b8ba036a08207c26d6ca84ef6ecd6c498e784393a93ddcdd3a53deb0f490</Sha256>
+      <Filename>SampleApp3.zip</Filename>
+      <Filesize>185</Filesize>
+
+      <Supported>true</Supported>
+    </App>
   </Items>
 </Apps>

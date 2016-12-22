@@ -65,6 +65,11 @@ namespace AppUpdaterClient
             this.ServerAddress = serverAddress;
             this.CurrentApp = ReadAppXML(appFilename);
         }
+        public AppUpdater(string serverAddress, App currentApp)
+        {
+            this.ServerAddress = serverAddress;
+            this.CurrentApp = currentApp;
+        }
 
         #endregion
 
@@ -76,7 +81,7 @@ namespace AppUpdaterClient
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-        private App ReadAppXML(string filename = "App.xml")
+        public static App ReadAppXML(string filename = "App.xml")
         {
             XmlSerializer SerializerObj = new XmlSerializer(typeof(App));
 
@@ -235,6 +240,25 @@ namespace AppUpdaterClient
 
             // May not be clean. Kills the current process in which the client is embedded (the app)
             Process.GetCurrentProcess().Kill();
+        }
+        
+        /// <summary>
+        /// Remove the downloaded file from the tmp folder, if any.
+        /// Return true if file properly deleted. Returns False if
+        /// no file was found or could not delete the file.
+        /// </summary>
+        /// <returns></returns>
+        public bool RemoveAppFile()
+        {
+            // Verify the file exists
+            if (!File.Exists(DownloadedFilename)) return false;
+            FileInfo info = new FileInfo(DownloadedFilename);
+            if (!info.Extension.Equals(".zip")) return false;
+
+            // Delete
+            File.Delete(DownloadedFilename);
+
+            return true;
         }
         #endregion
 

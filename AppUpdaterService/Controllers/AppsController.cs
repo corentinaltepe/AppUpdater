@@ -114,7 +114,7 @@ namespace AppUpdaterService.Controllers
             XmlSerializer SerializerObj = new XmlSerializer(typeof(AppList));
             
             // Create a new file stream for reading the XML file
-            FileStream ReadFileStream = new FileStream(AppDomainAppPath + "bin/App_Data/AppsList.xml",
+            FileStream ReadFileStream = new FileStream(AppDomainAppPath + "App_Data/AppsList.xml",
                                                         FileMode.Open, FileAccess.Read, FileShare.Read);
 
             // Load the object saved above by using the Deserialize function
