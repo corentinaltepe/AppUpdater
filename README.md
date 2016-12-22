@@ -82,7 +82,7 @@ Updater.InstallUpdate();
  * Create API to manage apps and updates
  * ~~Enable AppUpdaterService to keep in all previous versions of the app~~
  * Write Wiki, Getting Started guide, etc.
- * Test bootloader in ProgramFiles as Windows may be problematic and protect overwriting files
+ * ~~Test bootloader in ProgramFiles as Windows may be problematic and protect overwriting files~~
  * Version the bootloader
  * Enable client to update the bootloader
  * Develop UI for bootloader 
