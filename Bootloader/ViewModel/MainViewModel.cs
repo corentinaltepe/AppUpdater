@@ -99,7 +99,9 @@ namespace Bootloader.ViewModel
         // The stopwatch is used to kill the bootloader if the update has not been
         // initiated within a certain time limit
         private Timer Timer { get; set; }
-        
+
+        // Used to log when developing
+        private Logger Logger;
         #endregion
 
         #region Constructors
@@ -109,6 +111,10 @@ namespace Bootloader.ViewModel
             this.Timer = new Timer(TIMEOUT);
             this.Timer.Elapsed += Timer_Elapsed;
             this.Timer.Start();
+
+            // Log start of the app
+            Logger = new Logger();
+            Logger.LogLine("Bootloader start");
 
             // Read the App.xml at the local folder of the bootloader.exe
             ReadCurrentApp();
@@ -154,11 +160,14 @@ namespace Bootloader.ViewModel
             // Stop the timer, which could interrupt the update during its process
             this.Timer.Stop();
 
+            Logger.LogLine("Bootloader ready for the update.");
+
             // Run the update
             try
             {
                 // Open the zip
                 ZipArchive archive = ZipFile.OpenRead(Filename);
+                Logger.LogLine("Zip opened");
 
                 // Overwrite every file
                 string path = AppDomain.CurrentDomain.BaseDirectory;
@@ -167,6 +176,7 @@ namespace Bootloader.ViewModel
                     if (!IsBootloaderFile(entry.Name))
                     {
                         string fullpath = path + @"\" + entry.FullName;
+                        Logger.LogLine(path + @"\" + entry.FullName);
 
                         // If file
                         if (!String.IsNullOrEmpty(entry.Name))
@@ -183,11 +193,13 @@ namespace Bootloader.ViewModel
                 }
 
                 archive.Dispose();
+                Logger.LogLine("End of copy");
             }
             catch (Exception e)
             {
                 File.WriteAllText("log.txt", e.Message + Environment.NewLine + e.StackTrace.ToString());
                 Console.WriteLine(e.Message);
+                Logger.LogLine("Error: "+ e.Message + Environment.NewLine + e.StackTrace.ToString());
             }
 
             // Start the Application
