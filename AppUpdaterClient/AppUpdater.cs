@@ -50,6 +50,8 @@ namespace AppUpdaterClient
 
         // Filename (and path) to the newly downloaded app
         public string DownloadedFilename { get; set; }
+
+        public double Progress { get; set; }
         #endregion
 
 
@@ -138,11 +140,22 @@ namespace AppUpdaterClient
             request.AddParameter("action", "download");
 
             // Long call (potentially)
-            var response = client.Execute(request);
+            /*var response = client.Execute(request);
+            client.ExecuteAsync(request, (res) => HandleResponseToDownloadRequest(res));
 
             // Function has ended - return whether the app was donwloaded
             // properly and verified, or not
-            callback(HandleResponseToDownloadRequest(response));
+            callback(HandleResponseToDownloadRequest(response));*/
+            
+            string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D");
+            using (var writer = new HikFileStream(filename))
+            {
+                writer.Progress += (w, e) => {
+                    this.Progress = ((double)writer.CurrentSize) / ((double)NewerApp.Filesize);
+                };
+                request.ResponseWriter = (responseStream) => responseStream.CopyTo(writer);
+                var response = client.DownloadData(request);
+            }
         }
 
         /// <summary>

@@ -67,7 +67,7 @@ namespace AppUpdaterService.Controllers
 
             // Find the app information
             App app = FindLatestApp(encryptedId);
-            if (app == null) return BadRequest("App not found");
+            if (app == null) return BadRequest("App not found. No corresponding ID.");
 
             // Read the message, expect an "action" key
             parser = new RequestParser(message);
@@ -79,7 +79,7 @@ namespace AppUpdaterService.Controllers
             {
                 case "download":
                     AppContent appContent = FindAppContentByApp(app);
-                    if(appContent == null) return BadRequest("App not found");
+                    if(appContent == null) return BadRequest("App not found. File in system is not correct (hash, filesize or filename).");
 
                     // Encrypt ArchiveFile before sending it
                     appContent.EncryptArchive();
@@ -208,7 +208,7 @@ namespace AppUpdaterService.Controllers
             if (file.Length != app.Filesize) return null;
             SHA256 mySHA256 = SHA256Managed.Create();
             byte[] hash = mySHA256.ComputeHash(file);
-            if (!StringHex.ToHexStr(hash).Equals(app.Sha256)) return null;
+            if (!StringHex.ToHexStr(hash).ToLower().Equals(app.Sha256.ToLower())) return null;
 
             // The file was fully verified and proved valid
             myApp.Archive = file;

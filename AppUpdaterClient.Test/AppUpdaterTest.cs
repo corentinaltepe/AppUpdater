@@ -134,10 +134,8 @@ namespace AppUpdaterClient.Test
             // Current App's filename, filesize and sha256 given. 
             // Expected application to be downloaded to tmp folder.
             App currentApp = AppUpdater.ReadAppXML();
-            currentApp.Id = "ujrWZlyKQ4FLAS4b";
-            currentApp.Filename = "SampleApp3.zip";
-            currentApp.Filesize = 185;
-            currentApp.Sha256 = "fb80b8ba036a08207c26d6ca84ef6ecd6c498e784393a93ddcdd3a53deb0f490";
+            currentApp.Id = "ujrWZlyKQ4FLAS4c";
+            currentApp.Key = "tSzmfr1C35YAYI6r";
             AppUpdater updater = new AppUpdater(SERVER, currentApp);
 
             // Check for update and run the callback
