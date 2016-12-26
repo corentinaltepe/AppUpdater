@@ -71,6 +71,7 @@ namespace AppUpdaterClient
                 {
                     progress = val;
                     OnProgressReport("Progress");
+                    OnPropertyChanged("Progress");
                 }
             }
         }
@@ -180,7 +181,7 @@ namespace AppUpdaterClient
         /// Uses System.Net.Http.HttpClient instead of RestSharp to report progress.
         /// </summary>
         /// <param name="callback"></param>
-        public async void DownloadAsync(Action<bool> callback)
+        public async Task DownloadAsync(Action<bool> callback)
         {
             if (NewerApp == null) return;
 
@@ -216,9 +217,9 @@ namespace AppUpdaterClient
                     this.DownloadedSize = memStream.Length;
                     this.Progress = 100.0 * (double)memStream.Length / (double)NewerApp.Filesize;
                     
-
                     break;
                 }
+                Thread.Sleep(100);
             }
 
             // Get the bytes from the memory stream
