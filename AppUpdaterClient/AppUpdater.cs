@@ -1,4 +1,5 @@
 ﻿using AppLib;
+using System.Net.Http;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -127,17 +128,66 @@ namespace AppUpdaterClient
             callback(HandleServerResponseForNewerApp(response));
         }
 
-        // If a newer app is available, start downloading
-        // It can take a very long time to execute since the client is downloading a file from
-        // the server
-        public void DownloadAsync(Action<bool> callback)
+        /// <summary>
+        /// If a newer app is available, start downloading
+        /// It can take a very long time to execute since the client is downloading a file from
+        /// the server.
+        /// Uses System.Net.Http.HttpClient instead of RestSharp to report progress.
+        /// </summary>
+        /// <param name="callback"></param>
+        public async void DownloadAsync(Action<bool> callback)
         {
             if (NewerApp == null) return;
+
+            // Your original code.
+            HttpClientHandler aHandler = new HttpClientHandler();
+            aHandler.ClientCertificateOptions = ClientCertificateOption.Automatic;
+            HttpClient aClient = new HttpClient(aHandler);
+            aClient.DefaultRequestHeaders.ExpectContinue = false;
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, ServerAddress + "/Apps/");
+            string content = "id=" + CurrentApp.EncryptedId() + "&action=download";
+            message.Content = new StringContent(content);
+            HttpResponseMessage response = await aClient.SendAsync(message,
+                HttpCompletionOption.ResponseHeadersRead); // Important! ResponseHeadersRead.
             
+            // New code.
+            Stream stream = await response.Content.ReadAsStreamAsync();
+            MemoryStream memStream = new MemoryStream();
+
+            // Start reading the stream
+            var res = stream.CopyToAsync(memStream, 1024);
+
+            // While reading the stream
+            while (true)
+            {
+                // Report progress.
+                double progress = (double)memStream.Length / (double)NewerApp.Filesize;
+                this.Progress = progress;
+                //System.Diagnostics.Debug.WriteLine("Bytes read: {0}", totalBytesRead);
+
+                // Leave if no new data was read
+                if (res.IsCompleted)
+                {
+                    // Report progress one last time
+                    progress = (double)memStream.Length / (double)NewerApp.Filesize;
+                    this.Progress = progress;
+
+                    break;
+                }
+            }
+
+            // Function has ended - return whether the app was donwloaded
+            // properly and verified, or not
+            byte[] responseContent = new byte[memStream.Length];
+            memStream.Read(responseContent, 0, responseContent.Length);
+            callback(HandleResponseToDownloadRequest(responseContent));
+
+
+            /*
             var client = new RestClient(ServerAddress);
             var request = new RestRequest("/Apps/", Method.POST);
             request.AddParameter("id", CurrentApp.EncryptedId());
-            request.AddParameter("action", "download");
+            request.AddParameter("action", "download");*/
 
             // Long call (potentially)
             /*var response = client.Execute(request);
@@ -146,8 +196,9 @@ namespace AppUpdaterClient
             // Function has ended - return whether the app was donwloaded
             // properly and verified, or not
             callback(HandleResponseToDownloadRequest(response));*/
-            
+
             //string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D");
+            /*
             using (var writer = new HikFileStream())
             {
                 writer.Progress += (w, e) => {
@@ -167,7 +218,7 @@ namespace AppUpdaterClient
                 // Function has ended - return whether the app was donwloaded
                 // properly and verified, or not
                 callback(HandleResponseToDownloadRequest(response));
-            }
+            }*/
         }
 
         /// <summary>

@@ -18,7 +18,6 @@ namespace AppUpdaterService.Controllers
     public class AppsController : ApiController
     {
         private static string DEBUG_PATH = "C:/inetpub/wwwroot/App_Data/Applications/";
-        private static string RELEASE_PATH = "C:/inetpub/wwwroot/App_Data/Applications/";
 
         #region Properties
         private string appDomainAppVirtualPath = "";
@@ -192,9 +191,10 @@ namespace AppUpdaterService.Controllers
             AppContent myApp = AppContent.Cast(app);     // Cast
 
             // Find the file
-            string filename = RELEASE_PATH + app.Filename;
 #if DEBUG
-            filename = DEBUG_PATH + app.Filename;
+            string filename = DEBUG_PATH + app.Filename;
+#else
+            string filename = AppDomainAppPath + "App_Data/Applications/" + app.Filename;
 #endif
             // Verify the file exists and is a .zip
             if (!File.Exists(filename)) return null;
@@ -242,7 +242,7 @@ namespace AppUpdaterService.Controllers
             }
         }
         
-        #endregion
+#endregion
 
 
     }
