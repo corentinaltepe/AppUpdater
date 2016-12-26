@@ -1,4 +1,5 @@
 ﻿using AppLib;
+using System.Net.Http;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -50,6 +51,54 @@ namespace AppUpdaterClient
 
         // Filename (and path) to the newly downloaded app
         public string DownloadedFilename { get; set; }
+
+        private double progress = 0;
+        /// <summary>
+        /// Progress of the download of the App. From 0.0 (%) to 100.0 (%)
+        /// </summary>
+        public double Progress
+        {
+            get { return progress; }
+            set
+            {
+                // Max / Min
+                double val = value;
+                if (val > 100.0) val = 100;
+                else if (val < 0.0) val = 0.0;
+
+                // Assign value
+                if (progress != val)
+                {
+                    progress = val;
+                    OnProgressReport("Progress");
+                    OnPropertyChanged("Progress");
+                }
+            }
+        }
+
+        public long downloadedSize = 0;
+        /// <summary>
+        /// Quantity of bytes downloaded of the app.
+        /// Note: there can be more bytes downloaded than advertized because
+        /// the quantity of advertize filesize is not encrypted while the
+        /// received bytes are encrypted.
+        /// TODO: advertize the size of the encrypted file.
+        /// </summary>
+        public long DownloadedSize
+        {
+            get
+            {
+                return downloadedSize;
+            }
+            set
+            {
+                if (downloadedSize != value)
+                {
+                    downloadedSize = value;
+                    OnDownloadedSizeReport("DownloadedSize");
+                }
+            }
+        }
         #endregion
 
 
@@ -125,24 +174,62 @@ namespace AppUpdaterClient
             callback(HandleServerResponseForNewerApp(response));
         }
 
-        // If a newer app is available, start downloading
-        // It can take a very long time to execute since the client is downloading a file from
-        // the server
-        public void DownloadAsync(Action<bool> callback)
+        /// <summary>
+        /// If a newer app is available, start downloading
+        /// It can take a very long time to execute since the client is downloading a file from
+        /// the server.
+        /// Uses System.Net.Http.HttpClient instead of RestSharp to report progress.
+        /// </summary>
+        /// <param name="callback"></param>
+        public async Task DownloadAsync(Action<bool> callback)
         {
             if (NewerApp == null) return;
+
+            // Your original code.
+            HttpClientHandler aHandler = new HttpClientHandler();
+            aHandler.ClientCertificateOptions = ClientCertificateOption.Automatic;
+            HttpClient aClient = new HttpClient(aHandler);
+            aClient.DefaultRequestHeaders.ExpectContinue = false;
+            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, ServerAddress + "/Apps/");
+            string content = "id=" + CurrentApp.EncryptedId() + "&action=download";
+            message.Content = new StringContent(content);
+            HttpResponseMessage response = await aClient.SendAsync(message,
+                HttpCompletionOption.ResponseHeadersRead); // Important! ResponseHeadersRead.
             
-            var client = new RestClient(ServerAddress);
-            var request = new RestRequest("/Apps/", Method.POST);
-            request.AddParameter("id", CurrentApp.EncryptedId());
-            request.AddParameter("action", "download");
+            // New code.
+            Stream stream = await response.Content.ReadAsStreamAsync();
+            MemoryStream memStream = new MemoryStream();
 
-            // Long call (potentially)
-            var response = client.Execute(request);
+            // Start reading the stream
+            var res = stream.CopyToAsync(memStream);
 
+            // While reading the stream
+            while (true)
+            {
+                // Report progress
+                this.DownloadedSize = memStream.Length;
+                this.Progress = 100.0 * (double)memStream.Length / (double)NewerApp.Filesize;
+
+                // Leave if no new data was read
+                if (res.IsCompleted)
+                {
+                    // Report progress one last time
+                    this.DownloadedSize = memStream.Length;
+                    this.Progress = 100.0 * (double)memStream.Length / (double)NewerApp.Filesize;
+                    
+                    break;
+                }
+                Thread.Sleep(100);
+            }
+
+            // Get the bytes from the memory stream
+            byte[] responseContent = new byte[memStream.Length];
+            memStream.Position = 0;
+            memStream.Read(responseContent, 0, responseContent.Length);
+            
             // Function has ended - return whether the app was donwloaded
             // properly and verified, or not
-            callback(HandleResponseToDownloadRequest(response));
+            callback(HandleResponseToDownloadRequest(responseContent));
         }
 
         /// <summary>
@@ -151,7 +238,7 @@ namespace AppUpdaterClient
         /// Returns true if the server has replied with a newer version available.
         /// Returns false otherwise (errors, no app available, id wrong, etc.)
         /// </summary>
-        /// <param name="response">RestSharpt IRestResponse from the API</param>
+        /// <param name="response">Byte array of response from the API</param>
         /// <returns>True if a newer version is available</returns>
         private bool HandleServerResponseForNewerApp(IRestResponse<App> response)
         {
@@ -177,17 +264,15 @@ namespace AppUpdaterClient
             return false;
         }
 
-        private bool HandleResponseToDownloadRequest(IRestResponse response)
+        private bool HandleResponseToDownloadRequest(byte[] response)
         {
-            if ((response.StatusCode == System.Net.HttpStatusCode.BadRequest) ||
-                (response.StatusCode != System.Net.HttpStatusCode.OK) ||
-                (!response.ContentType.Equals("application/octet-stream")))
+            if (response == null || response.Length == 0)
                 return false;
             
             try
             {
                 // Decrypt the bytes using the key of the app
-                byte[] decryptedFile = StringCipher.Decrypt(response.RawBytes, CurrentApp.Key);
+                byte[] decryptedFile = StringCipher.Decrypt(response, CurrentApp.Key);
 
                 // Verify validity of the file (size and hash)
                 if (decryptedFile.Length != NewerApp.Filesize) return false;
@@ -272,6 +357,36 @@ namespace AppUpdaterClient
                 handler(this, new PropertyChangedEventArgs(name));
             }
         }
+
+        /// <summary>
+        /// Fired when the progress of the download of the app file
+        /// has updated (more bytes received).
+        /// </summary>
+        public event PropertyChangedEventHandler ProgressReport;
+        protected void OnProgressReport(string name)
+        {
+            PropertyChangedEventHandler handler = ProgressReport;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+        
+        /// <summary>
+        /// Fired when the progress of the download of the app file
+        /// has updated (more bytes received).
+        /// </summary>
+        public event PropertyChangedEventHandler DownloadedSizeReport;
+        protected void OnDownloadedSizeReport(string name)
+        {
+            PropertyChangedEventHandler handler = DownloadedSizeReport;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+
         #endregion
     }
 }

@@ -128,16 +128,14 @@ namespace AppUpdaterClient.Test
             Assert.IsFalse(AppDownloaded);
         }
 
-        [TestMethod, Timeout(10000)]
+        [TestMethod, Timeout(1000000)]
         public void DownloadNewerApplicationTest4()
         {
             // Current App's filename, filesize and sha256 given. 
             // Expected application to be downloaded to tmp folder.
             App currentApp = AppUpdater.ReadAppXML();
-            currentApp.Id = "ujrWZlyKQ4FLAS4b";
-            currentApp.Filename = "SampleApp3.zip";
-            currentApp.Filesize = 185;
-            currentApp.Sha256 = "fb80b8ba036a08207c26d6ca84ef6ecd6c498e784393a93ddcdd3a53deb0f490";
+            currentApp.Id = "ujrWZlyKQ4FLAS4c";
+            currentApp.Key = "tSzmfr1C35YAYI6r";
             AppUpdater updater = new AppUpdater(SERVER, currentApp);
 
             // Check for update and run the callback
@@ -149,11 +147,13 @@ namespace AppUpdaterClient.Test
 
             // Now request to download app (.zip)
             CallbackExecuted = false;
+            Assert.AreEqual(0, updater.Progress);
             updater.DownloadAsync(res => DownloadNewAppCallback(res));
             while (!CallbackExecuted) Thread.Sleep(20);
 
             // The download should have failed since no .zip file is available
             Assert.IsTrue(AppDownloaded);
+            Assert.IsTrue(99.0 < updater.Progress);
 
             // Remove file from TMP folder
             Assert.IsTrue(updater.RemoveAppFile());
