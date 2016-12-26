@@ -77,7 +77,7 @@ Updater.InstallUpdate();
  ```
 
 # TODOs & Ideas
- * Report progress of download of the update file. Using stream?
+ * ~~Report progress of download of the update file. Using stream?~~
  * Create API & Web UI to upload new apps and updates
  * Create API to manage apps and updates
  * ~~Enable AppUpdaterService to keep in all previous versions of the app~~
