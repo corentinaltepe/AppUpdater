@@ -7,16 +7,13 @@ using System.Threading.Tasks;
 
 namespace AppUpdaterClient
 {
-    public class HikFileStream : FileStream
+    public class HikFileStream : MemoryStream
     {
-        public HikFileStream(string path)
-            : base(path, FileMode.Create, FileAccess.Write, FileShare.None)
-        {
-        }
+        public HikFileStream() : base()
+        { }
 
         public long CurrentSize { get; private set; }
-
-
+        
         public event EventHandler Progress;
 
         public override void Write(byte[] array, int offset, int count)

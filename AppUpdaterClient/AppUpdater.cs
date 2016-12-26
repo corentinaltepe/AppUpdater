@@ -147,14 +147,26 @@ namespace AppUpdaterClient
             // properly and verified, or not
             callback(HandleResponseToDownloadRequest(response));*/
             
-            string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D");
-            using (var writer = new HikFileStream(filename))
+            //string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D");
+            using (var writer = new HikFileStream())
             {
                 writer.Progress += (w, e) => {
                     this.Progress = ((double)writer.CurrentSize) / ((double)NewerApp.Filesize);
                 };
                 request.ResponseWriter = (responseStream) => responseStream.CopyTo(writer);
-                var response = client.DownloadData(request);
+
+
+                client.DownloadData(request);
+                //IRestResponse rest = client.Execute(request);
+                //byte[] response = rest.RawBytes;
+
+                // Read the stream
+                byte[] response = new byte[writer.Length];
+                writer.Read(response, 0, response.Length);
+
+                // Function has ended - return whether the app was donwloaded
+                // properly and verified, or not
+                callback(HandleResponseToDownloadRequest(response));
             }
         }
 
@@ -164,7 +176,7 @@ namespace AppUpdaterClient
         /// Returns true if the server has replied with a newer version available.
         /// Returns false otherwise (errors, no app available, id wrong, etc.)
         /// </summary>
-        /// <param name="response">RestSharpt IRestResponse from the API</param>
+        /// <param name="response">Byte array of response from the API</param>
         /// <returns>True if a newer version is available</returns>
         private bool HandleServerResponseForNewerApp(IRestResponse<App> response)
         {
@@ -190,17 +202,15 @@ namespace AppUpdaterClient
             return false;
         }
 
-        private bool HandleResponseToDownloadRequest(IRestResponse response)
+        private bool HandleResponseToDownloadRequest(byte[] response)
         {
-            if ((response.StatusCode == System.Net.HttpStatusCode.BadRequest) ||
-                (response.StatusCode != System.Net.HttpStatusCode.OK) ||
-                (!response.ContentType.Equals("application/octet-stream")))
+            if (response == null || response.Length == 0)
                 return false;
             
             try
             {
                 // Decrypt the bytes using the key of the app
-                byte[] decryptedFile = StringCipher.Decrypt(response.RawBytes, CurrentApp.Key);
+                byte[] decryptedFile = StringCipher.Decrypt(response, CurrentApp.Key);
 
                 // Verify validity of the file (size and hash)
                 if (decryptedFile.Length != NewerApp.Filesize) return false;
