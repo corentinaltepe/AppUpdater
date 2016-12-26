@@ -52,7 +52,52 @@ namespace AppUpdaterClient
         // Filename (and path) to the newly downloaded app
         public string DownloadedFilename { get; set; }
 
-        public double Progress { get; set; }
+        private double progress = 0;
+        /// <summary>
+        /// Progress of the download of the App. From 0.0 (%) to 100.0 (%)
+        /// </summary>
+        public double Progress
+        {
+            get { return progress; }
+            set
+            {
+                // Max / Min
+                double val = value;
+                if (val > 100.0) val = 100;
+                else if (val < 0.0) val = 0.0;
+
+                // Assign value
+                if (progress != val)
+                {
+                    progress = val;
+                    OnProgressReport("Progress");
+                }
+            }
+        }
+
+        public long downloadedSize = 0;
+        /// <summary>
+        /// Quantity of bytes downloaded of the app.
+        /// Note: there can be more bytes downloaded than advertized because
+        /// the quantity of advertize filesize is not encrypted while the
+        /// received bytes are encrypted.
+        /// TODO: advertize the size of the encrypted file.
+        /// </summary>
+        public long DownloadedSize
+        {
+            get
+            {
+                return downloadedSize;
+            }
+            set
+            {
+                if (downloadedSize != value)
+                {
+                    downloadedSize = value;
+                    OnDownloadedSizeReport("DownloadedSize");
+                }
+            }
+        }
         #endregion
 
 
@@ -155,70 +200,35 @@ namespace AppUpdaterClient
             MemoryStream memStream = new MemoryStream();
 
             // Start reading the stream
-            var res = stream.CopyToAsync(memStream, 1024);
+            var res = stream.CopyToAsync(memStream);
 
             // While reading the stream
             while (true)
             {
-                // Report progress.
-                double progress = (double)memStream.Length / (double)NewerApp.Filesize;
-                this.Progress = progress;
-                //System.Diagnostics.Debug.WriteLine("Bytes read: {0}", totalBytesRead);
+                // Report progress
+                this.DownloadedSize = memStream.Length;
+                this.Progress = 100.0 * (double)memStream.Length / (double)NewerApp.Filesize;
 
                 // Leave if no new data was read
                 if (res.IsCompleted)
                 {
                     // Report progress one last time
-                    progress = (double)memStream.Length / (double)NewerApp.Filesize;
-                    this.Progress = progress;
+                    this.DownloadedSize = memStream.Length;
+                    this.Progress = 100.0 * (double)memStream.Length / (double)NewerApp.Filesize;
+                    
 
                     break;
                 }
             }
 
-            // Function has ended - return whether the app was donwloaded
-            // properly and verified, or not
+            // Get the bytes from the memory stream
             byte[] responseContent = new byte[memStream.Length];
+            memStream.Position = 0;
             memStream.Read(responseContent, 0, responseContent.Length);
-            callback(HandleResponseToDownloadRequest(responseContent));
-
-
-            /*
-            var client = new RestClient(ServerAddress);
-            var request = new RestRequest("/Apps/", Method.POST);
-            request.AddParameter("id", CurrentApp.EncryptedId());
-            request.AddParameter("action", "download");*/
-
-            // Long call (potentially)
-            /*var response = client.Execute(request);
-            client.ExecuteAsync(request, (res) => HandleResponseToDownloadRequest(res));
-
+            
             // Function has ended - return whether the app was donwloaded
             // properly and verified, or not
-            callback(HandleResponseToDownloadRequest(response));*/
-
-            //string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D");
-            /*
-            using (var writer = new HikFileStream())
-            {
-                writer.Progress += (w, e) => {
-                    this.Progress = ((double)writer.CurrentSize) / ((double)NewerApp.Filesize);
-                };
-                request.ResponseWriter = (responseStream) => responseStream.CopyTo(writer);
-
-
-                client.DownloadData(request);
-                //IRestResponse rest = client.Execute(request);
-                //byte[] response = rest.RawBytes;
-
-                // Read the stream
-                byte[] response = new byte[writer.Length];
-                writer.Read(response, 0, response.Length);
-
-                // Function has ended - return whether the app was donwloaded
-                // properly and verified, or not
-                callback(HandleResponseToDownloadRequest(response));
-            }*/
+            callback(HandleResponseToDownloadRequest(responseContent));
         }
 
         /// <summary>
@@ -346,6 +356,36 @@ namespace AppUpdaterClient
                 handler(this, new PropertyChangedEventArgs(name));
             }
         }
+
+        /// <summary>
+        /// Fired when the progress of the download of the app file
+        /// has updated (more bytes received).
+        /// </summary>
+        public event PropertyChangedEventHandler ProgressReport;
+        protected void OnProgressReport(string name)
+        {
+            PropertyChangedEventHandler handler = ProgressReport;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+        
+        /// <summary>
+        /// Fired when the progress of the download of the app file
+        /// has updated (more bytes received).
+        /// </summary>
+        public event PropertyChangedEventHandler DownloadedSizeReport;
+        protected void OnDownloadedSizeReport(string name)
+        {
+            PropertyChangedEventHandler handler = DownloadedSizeReport;
+            if (handler != null)
+            {
+                handler(this, new PropertyChangedEventArgs(name));
+            }
+        }
+
+
         #endregion
     }
 }

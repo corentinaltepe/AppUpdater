@@ -153,7 +153,7 @@ namespace AppUpdaterClient.Test
 
             // The download should have failed since no .zip file is available
             Assert.IsTrue(AppDownloaded);
-            Assert.IsTrue(100.0 < updater.Progress);
+            Assert.IsTrue(99.0 < updater.Progress);
 
             // Remove file from TMP folder
             Assert.IsTrue(updater.RemoveAppFile());
