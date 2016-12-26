@@ -168,10 +168,14 @@ namespace AppUpdaterClient
             request.AddParameter("id", CurrentApp.EncryptedId());
             
             // Long call (potentially)
-            var response = client.Execute<App>(request);
+            var task = client.ExecuteAsync<App>(request, res =>
+            {
+                // Function has ended - return whether a newer application was found, or not
+                bool hasNewerApp = HandleServerResponseForNewerApp(res);
+                callback(hasNewerApp);
+            });
             
-            // Function has ended - return whether a newer application was found, or not
-            callback(HandleServerResponseForNewerApp(response));
+            //callback(HandleServerResponseForNewerApp(response));
         }
 
         /// <summary>
