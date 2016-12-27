@@ -12,12 +12,12 @@ namespace Bootloader.Test
         [TestMethod]
         public void BootloaderTest_update_0dd6865c()
         {
-            string filename = @"C:\Users\Corentin\AppData\Local\Temp\update_0dd6865c-e9f4-4d47-aa05-c6143691d279.zip";
+            string filename = @"C:\Users\David-Alexandre\AppData\Local\Temp\sampleapp1.zip";
 
             // Create the VM & assign filename
             MainViewModel vm = new MainViewModel();
             Assert.IsNotNull(vm.CurrentApp);
-            Assert.AreEqual("Updating Japanese Dive Planner", vm.Title);
+            Assert.AreEqual("Updating My Application Name", vm.Title);
 
             Assert.IsFalse(vm.IsProcessGiven);
 

@@ -14,10 +14,8 @@ namespace Bootloader.ViewModel
     public class MainViewModel : INotifyPropertyChanged
     {
         // Files which should not be overwritten during update
-        private static string[] BOOTLOADERFILES = { "AppLib.dll",
-                                                    "Bootloader.exe",
+        private static string[] BOOTLOADERFILES = { "Bootloader.exe",
                                                     "Bootloader.Test.dll",
-                                                    "AppLib.pdb",
                                                     "Bootloader.pdb",
                                                     "Bootloader.exe.config",
                                                     "Bootloader.vshost.exe",
@@ -49,8 +47,8 @@ namespace Bootloader.ViewModel
                 OnPropertyChanged("Filename");
             }
         }
-        private AppLib.App currentApp;
-        public AppLib.App CurrentApp
+        private AppManifest currentApp;
+        public AppManifest CurrentApp
         {
             get { return currentApp; }
             set
@@ -63,8 +61,8 @@ namespace Bootloader.ViewModel
                     OnPropertyChanged("Title");
             }
         }
-        private AppLib.App newerApp;
-        public AppLib.App NewerApp
+        private AppManifest newerApp;
+        public AppManifest NewerApp
         {
             get { return newerApp; }
             set
@@ -144,7 +142,7 @@ namespace Bootloader.ViewModel
                 // Read and assign newer app
                 string path = AppDomain.CurrentDomain.BaseDirectory;
                 string xml = File.ReadAllText(path + @"\App.xml");
-                this.CurrentApp = AppLib.App.FromXML(xml);
+                this.CurrentApp = AppManifest.FromXML(xml);
             }
             catch
             {
@@ -173,7 +171,7 @@ namespace Bootloader.ViewModel
                 string path = AppDomain.CurrentDomain.BaseDirectory;
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    if (!IsBootloaderFile(entry.Name))
+                    if (!IsNonReplaceableFile(entry.Name))
                     {
                         string fullpath = path + @"\" + entry.FullName;
                         Logger.LogLine(path + @"\" + entry.FullName);
@@ -214,7 +212,7 @@ namespace Bootloader.ViewModel
         #endregion
 
         #region Functions
-        private AppLib.App ReadApp(string filepath)
+        private AppManifest ReadApp(string filepath)
         {
             // Do verification on file existence and extension
             if (String.IsNullOrEmpty(filepath)) return null;
@@ -229,7 +227,7 @@ namespace Bootloader.ViewModel
             if (!ContainsEntry(archive, "App.xml")) return null;
 
             // Read the App.xml
-            AppLib.App app = ReadApp(GetEntry(archive, "App.xml"));
+            AppManifest app = ReadApp(GetEntry(archive, "App.xml"));
             if (app == null) return null;
 
             // Release resources
@@ -254,7 +252,7 @@ namespace Bootloader.ViewModel
             return null;
         }
         
-        private AppLib.App ReadApp(ZipArchiveEntry file)
+        private AppManifest ReadApp(ZipArchiveEntry file)
         {
             using (var stream = file.Open())
             using (var reader = new StreamReader(stream))
@@ -263,7 +261,7 @@ namespace Bootloader.ViewModel
                 string xml = reader.ReadToEnd();
 
                 // Deserialize
-                return AppLib.App.FromXML(xml);
+                return AppManifest.FromXML(xml);
             }
         }
         
@@ -294,7 +292,7 @@ namespace Bootloader.ViewModel
             return true;
         }
         
-        private bool IsBootloaderFile(string filename)
+        private bool IsNonReplaceableFile(string filename)
         {
             foreach (string file in BOOTLOADERFILES)
                 if (filename.Equals(file)) return true;
