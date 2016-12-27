@@ -294,7 +294,7 @@ namespace AppUpdaterClient
                 if (decryptedFile.Length != NewerApp.Filesize) return false;
                 SHA256 mySHA256 = SHA256Managed.Create();
                 byte[] hash = mySHA256.ComputeHash(decryptedFile);
-                if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256)) return false;
+                if (!StringHex.ToHexStr(hash).ToLower().Equals(NewerApp.Sha256.ToLower())) return false;
 
                 // Download the file to TMP folder
                 string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D") + ".zip";
