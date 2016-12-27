@@ -83,8 +83,8 @@ Updater.InstallUpdate();
  * ~~Enable AppUpdaterService to keep in all previous versions of the app~~
  * Write Wiki, Getting Started guide, etc.
  * ~~Test bootloader in ProgramFiles as Windows may be problematic and protect overwriting files~~
- * Version the bootloader: under way
- * Enable client to update the bootloader: under way --> Create a serparate, minimal bootloader_updater.exe which will take care separately of the update with admin rights. 
+ * ~~Version the bootloader~~
+ * ~~Enable client to update the bootloader~~
  * Develop UI for bootloader 
  * Develop console application for bootloader?
  * Implement authentication for connection to API
