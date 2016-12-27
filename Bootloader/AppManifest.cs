@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace Bootloader
 {
+    [XmlRoot("App")]
     public class AppManifest
     {
         public string Id { get; set; }

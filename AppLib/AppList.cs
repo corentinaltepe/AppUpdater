@@ -11,16 +11,16 @@ namespace AppLib
     public class AppList
     {
         /*[XmlElement("App")]*/
-        public List<App> Items { get; set; }
+        public List<AppManifest> Items { get; set; }
 
         public AppList()
         {
-            Items = new List<App>();
+            Items = new List<AppManifest>();
         }
 
-        public App FindAppByID(string id)
+        public AppManifest FindAppByID(string id)
         {
-            foreach (App app in Items)
+            foreach (AppManifest app in Items)
                 if (app.Id.Equals(id))
                     return app;
 

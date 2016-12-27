@@ -74,7 +74,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AppManifest.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="StringCipher.cs" />
+    <Compile Include="StringHex.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using System.Diagnostics;
 using System.Timers;
+using System.Reflection;
 
 namespace Bootloader.ViewModel
 {
@@ -188,6 +189,11 @@ namespace Bootloader.ViewModel
                                 Directory.CreateDirectory(fullpath);
                         }
                     }
+                    else if (IsBootloaderFile(entry.Name))
+                    {
+                        // Update the bootloader if higher version number
+                        UpdateBootloader(entry);
+                    }
                 }
 
                 archive.Dispose();
@@ -208,6 +214,35 @@ namespace Bootloader.ViewModel
 
             // Kill the bootloader process
             Process.GetCurrentProcess().Kill();
+        }
+
+        private void UpdateBootloader(ZipArchiveEntry entry)
+        {
+            // Copy the file to tmp folder
+            string filename = System.IO.Path.GetTempPath() + entry.Name;
+            entry.ExtractToFile(filename, true);
+
+            // Read the assembly version number
+            Version version = AssemblyName.GetAssemblyName(filename).Version;
+            Logger.LogLine("New bootloader version: " + version);
+
+            // Get current assembly version
+            Version currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
+            Logger.LogLine("Current bootloaderversion: " + currentVersion);
+
+            // Compare
+            if (currentVersion.CompareTo(version) < 0)
+            {
+                // Copy the bootloader to "Bootloader_update.exe"
+                string path = AppDomain.CurrentDomain.BaseDirectory;
+                string fullpath = path + @"\Bootloader_update.exe";
+
+                entry.ExtractToFile(fullpath, true);
+                Logger.LogLine(fullpath);
+            }
+
+            // Delete the tmp file Bootloader.exe
+            File.Delete(filename);
         }
         #endregion
 
@@ -296,6 +331,13 @@ namespace Bootloader.ViewModel
         {
             foreach (string file in BOOTLOADERFILES)
                 if (filename.Equals(file)) return true;
+
+            return false;
+        }
+        private bool IsBootloaderFile(string filename)
+        {
+            if (filename.Equals(BOOTLOADERFILES[0]))
+                return true;
 
             return false;
         }

@@ -43,14 +43,14 @@ namespace AppUpdaterService.Tests
 
             // 
             IHttpActionResult actionResult = ctl.Post(request);
-            var contentResult = actionResult as OkNegotiatedContentResult<App>;
+            var contentResult = actionResult as OkNegotiatedContentResult<AppManifest>;
 
             // Assert
             Assert.IsNotNull(contentResult);
             Assert.IsNotNull(contentResult.Content);
-            Assert.AreEqual(typeof(App), contentResult.Content.GetType());
+            Assert.AreEqual(typeof(AppManifest), contentResult.Content.GetType());
 
-            App app = contentResult.Content;
+            AppManifest app = contentResult.Content;
             Assert.IsNull(app.Id);
             Assert.IsNull(app.Key);
             Assert.AreEqual("My Application Name", app.Name);
@@ -92,7 +92,7 @@ namespace AppUpdaterService.Tests
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/api/Apps");
             request.SetConfiguration(new HttpConfiguration());
 
-            App app = new App() { Id = "ujrWZlyKQ4FLAS4a", Key = "tSzmfr1C35YAYI6r" };
+            AppManifest app = new AppManifest() { Id = "ujrWZlyKQ4FLAS4a", Key = "tSzmfr1C35YAYI6r" };
             request.Content = new StringContent("id="+app.EncryptedId(),
                 Encoding.UTF8, "application/json");
 
@@ -100,7 +100,7 @@ namespace AppUpdaterService.Tests
             ctl.AppDomainAppPath = AppDomain.CurrentDomain.BaseDirectory + "/";
             
             IHttpActionResult actionResult = ctl.Post(request);
-            var contentResult = actionResult as OkNegotiatedContentResult<App>;
+            var contentResult = actionResult as OkNegotiatedContentResult<AppManifest>;
 
             // Assert
             Assert.IsNotNull(contentResult);
@@ -114,7 +114,7 @@ namespace AppUpdaterService.Tests
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, "/api/Apps");
             request.SetConfiguration(new HttpConfiguration());
 
-            App app = new App();
+            AppManifest app = new AppManifest();
             app.Key = "tSzmfr1C35YAYI6r";
             app.Id = "ujrWZlyKQ4FLAS4b";
 
