@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.cs" />
+    <Compile Include="AppManifest.cs" />
     <Compile Include="AppContent.cs" />
     <Compile Include="AppList.cs" />
     <Compile Include="StringCipher.cs" />

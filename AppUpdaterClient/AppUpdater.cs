@@ -99,25 +99,42 @@ namespace AppUpdaterClient
                 }
             }
         }
+
+        /// <summary>
+        /// When instanciated, the AppUpdater will attempt to update the bootloader
+        /// if any available. Update will fail if Admin Rights are required (in Program Files)
+        /// but not granted. In such case, AdminRightsRequired is set to True.
+        /// If AdminRightsRequired is true, you need to restart your app with Admin rights
+        /// if you want the bootloader to be updated.
+        /// </summary>
+        public bool AdminRightsRequired { get; set; }
+        
         #endregion
-
-
-
+        
         #region Constructors
         public AppUpdater(string serverAddress)
         {
             this.ServerAddress = serverAddress;
             this.CurrentApp = ReadAppXML();
+
+            // Update the bootloader, if available
+            AdminRightsRequired = !UpdateBootloader();
         }
         public AppUpdater(string serverAddress, string appFilename)
         {
             this.ServerAddress = serverAddress;
             this.CurrentApp = ReadAppXML(appFilename);
+
+            // Update the bootloader, if available
+            AdminRightsRequired = !UpdateBootloader();
         }
         public AppUpdater(string serverAddress, AppManifest currentApp)
         {
             this.ServerAddress = serverAddress;
             this.CurrentApp = currentApp;
+
+            // Update the bootloader, if available
+            AdminRightsRequired = !UpdateBootloader();
         }
 
         #endregion
@@ -346,6 +363,56 @@ namespace AppUpdaterClient
 
             // Delete
             File.Delete(DownloadedFilename);
+
+            return true;
+        }
+        
+        /// <summary>
+        /// Checks if an update for the bootloader is available.
+        /// Runs the update if available. Returns FALSE if
+        /// operation failed because it needs admin rights. In this
+        /// case, you need to restart your app with admin rights.
+        /// </summary>
+        /// <returns></returns>
+        public bool UpdateBootloader()
+        {
+            if (!IsBootloaderUpdateAvailable()) return true;
+
+            // Run the update
+            try
+            {
+                File.Copy("Bootloader_update.exe", "Bootloader.exe", true);
+            }
+            catch { return false; }
+
+            // Check the update succeeded
+            if (IsBootloaderUpdateAvailable()) return false;
+
+            // Delete the update file
+            try
+            {
+                File.Delete("Bootloader_update.exe");
+            }
+            catch { return false; }
+
+            return true;
+        }
+        #endregion
+
+        #region Functions
+        private bool IsBootloaderUpdateAvailable()
+        {
+            if (!File.Exists("Bootloader_update.exe")) return false;
+            
+            if (File.Exists("Bootloader.exe"))
+            {
+                Version CurVersion = AssemblyName.GetAssemblyName("Bootloader.exe").Version;
+                Version NewVersion = AssemblyName.GetAssemblyName("Bootloader_update.exe").Version;
+
+                if (CurVersion.CompareTo(NewVersion) < 0)
+                    return true;
+                return false;
+            }
 
             return true;
         }
