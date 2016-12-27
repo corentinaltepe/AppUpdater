@@ -8,7 +8,8 @@ using System.Xml.Serialization;
 
 namespace AppLib
 {
-    public class App
+    [XmlRoot("App")]
+    public class AppManifest
     {
         public string Id { get; set; }
         public string Key { get; set; }
@@ -35,7 +36,7 @@ namespace AppLib
         }
 
         // Called before sending the App info to the API client
-        public App RemoveSensitiveInfo()
+        public AppManifest RemoveSensitiveInfo()
         {
             this.Id = null;
             this.Key = null;
@@ -69,12 +70,12 @@ namespace AppLib
                 return textWriter.ToString();
             }
         }
-        public static App FromXML(string s)
+        public static AppManifest FromXML(string s)
         {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(App));
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(AppManifest));
             using (StringReader textReader = new StringReader(s))
             {
-                return (App)(xmlSerializer.Deserialize(textReader));
+                return (AppManifest)(xmlSerializer.Deserialize(textReader));
             }
         }
 

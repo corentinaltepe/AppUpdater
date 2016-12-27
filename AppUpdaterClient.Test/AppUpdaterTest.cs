@@ -80,7 +80,7 @@ namespace AppUpdaterClient.Test
         public void DownloadNewerApplicationTest2()
         {
             // Current App's filename is given but not the filesize. Expected error message from the server.
-            App currentApp = AppUpdater.ReadAppXML();
+            AppManifest currentApp = AppUpdater.ReadAppXML();
             currentApp.Id = "ujrWZlyKQ4FLAS4b";
             currentApp.Filename = "SampleApp3.zip";
             AppUpdater updater = new AppUpdater(SERVER, currentApp);
@@ -106,7 +106,7 @@ namespace AppUpdaterClient.Test
         {
             // Current App's filename and filesize is given but not the sha256. 
             // Expected error message from the server.
-            App currentApp = AppUpdater.ReadAppXML();
+            AppManifest currentApp = AppUpdater.ReadAppXML();
             currentApp.Id = "ujrWZlyKQ4FLAS4b";
             currentApp.Filename = "SampleApp3.zip";
             currentApp.Filesize = 185;
@@ -133,7 +133,7 @@ namespace AppUpdaterClient.Test
         {
             // Current App's filename, filesize and sha256 given. 
             // Expected application to be downloaded to tmp folder.
-            App currentApp = AppUpdater.ReadAppXML();
+            AppManifest currentApp = AppUpdater.ReadAppXML();
             currentApp.Id = "ujrWZlyKQ4FLAS4c";
             currentApp.Key = "tSzmfr1C35YAYI6r";
             AppUpdater updater = new AppUpdater(SERVER, currentApp);

@@ -23,11 +23,11 @@ namespace AppUpdaterClient
         public string ServerAddress { get; set; }
 
         // Info about the Application the AppUpdater is embedded to
-        public App CurrentApp { get; set; }
+        public AppManifest CurrentApp { get; set; }
 
         // If a newer application is available, its info is loaded in this object
-        private App newerApp;
-        public App NewerApp
+        private AppManifest newerApp;
+        public AppManifest NewerApp
         {
             get { return newerApp; }
             set
@@ -99,25 +99,37 @@ namespace AppUpdaterClient
                 }
             }
         }
+        
+        
         #endregion
-
-
-
+        
         #region Constructors
-        public AppUpdater(string serverAddress)
+        public AppUpdater(string serverAddress, bool UpdateBootloader = true)
         {
             this.ServerAddress = serverAddress;
             this.CurrentApp = ReadAppXML();
+
+            // Update the bootloader, if available
+            if (UpdateBootloader)
+                this.UpdateBootloader();
         }
-        public AppUpdater(string serverAddress, string appFilename)
+        public AppUpdater(string serverAddress, string appFilename, bool UpdateBootloader = true)
         {
             this.ServerAddress = serverAddress;
             this.CurrentApp = ReadAppXML(appFilename);
+
+            // Update the bootloader, if available
+            if (UpdateBootloader)
+                this.UpdateBootloader();
         }
-        public AppUpdater(string serverAddress, App currentApp)
+        public AppUpdater(string serverAddress, AppManifest currentApp, bool UpdateBootloader = true)
         {
             this.ServerAddress = serverAddress;
             this.CurrentApp = currentApp;
+
+            // Update the bootloader, if available
+            if(UpdateBootloader)
+                this.UpdateBootloader();
         }
 
         #endregion
@@ -130,9 +142,9 @@ namespace AppUpdaterClient
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-        public static App ReadAppXML(string filename = "App.xml")
+        public static AppManifest ReadAppXML(string filename = "App.xml")
         {
-            XmlSerializer SerializerObj = new XmlSerializer(typeof(App));
+            XmlSerializer SerializerObj = new XmlSerializer(typeof(AppManifest));
 
             // Check App.xml exists
             string pathtoAppXml = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -145,7 +157,7 @@ namespace AppUpdaterClient
             FileStream ReadFileStream = new FileStream(pathtoAppXml, FileMode.Open, FileAccess.Read, FileShare.Read);
 
             // Load the object saved above by using the Deserialize function
-            App app = (App)SerializerObj.Deserialize(ReadFileStream);
+            AppManifest app = (AppManifest)SerializerObj.Deserialize(ReadFileStream);
 
             // Cleanup
             ReadFileStream.Close();
@@ -168,7 +180,7 @@ namespace AppUpdaterClient
             request.AddParameter("id", CurrentApp.EncryptedId());
             
             // Long call (potentially)
-            var task = client.ExecuteAsync<App>(request, res =>
+            var task = client.ExecuteAsync<AppManifest>(request, res =>
             {
                 // Function has ended - return whether a newer application was found, or not
                 bool hasNewerApp = HandleServerResponseForNewerApp(res);
@@ -244,14 +256,14 @@ namespace AppUpdaterClient
         /// </summary>
         /// <param name="response">Byte array of response from the API</param>
         /// <returns>True if a newer version is available</returns>
-        private bool HandleServerResponseForNewerApp(IRestResponse<App> response)
+        private bool HandleServerResponseForNewerApp(IRestResponse<AppManifest> response)
         {
             if (response.Data == null) return false;
             if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) return false;
             if (response.StatusCode != System.Net.HttpStatusCode.OK) return false;
 
 
-            App serverAppInfo = response.Data;
+            AppManifest serverAppInfo = response.Data;
             
             // If the app info was found on the server
             if (serverAppInfo != null)
@@ -282,7 +294,7 @@ namespace AppUpdaterClient
                 if (decryptedFile.Length != NewerApp.Filesize) return false;
                 SHA256 mySHA256 = SHA256Managed.Create();
                 byte[] hash = mySHA256.ComputeHash(decryptedFile);
-                if (!StringHex.ToHexStr(hash).Equals(NewerApp.Sha256)) return false;
+                if (!StringHex.ToHexStr(hash).ToLower().Equals(NewerApp.Sha256.ToLower())) return false;
 
                 // Download the file to TMP folder
                 string filename = System.IO.Path.GetTempPath() + "update_" + Guid.NewGuid().ToString("D") + ".zip";
@@ -349,6 +361,34 @@ namespace AppUpdaterClient
 
             return true;
         }
+        
+        
+        /// <summary>
+        /// Tried updating the bootloader (if needed) without admin rights.
+        /// If update fails, invoke BootloaderUpdater with Admin right, 
+        /// have it run the update, then return.
+        /// </summary>
+        /// <returns></returns>
+        private void UpdateBootloader()
+        {
+            // Try updating with the process of the application in which AppUdaterClient 
+            // is embedded to.
+            var needAdminRights = !BootloaderUpdater.BootloaderUpdater.UpdateBootloader();
+
+            // If it didn't work, then start the process of BootloaderUpdater,
+            // which is granted admin rights.
+            if(needAdminRights)
+            {
+                Process.Start("BootloaderUpdater.exe");
+
+                // Process should be relatively fast to execute.
+            }
+            
+        }
+        #endregion
+
+        #region Functions
+        
         #endregion
 
         #region Events

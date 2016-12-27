@@ -12,7 +12,7 @@ namespace AppLib.Test
         {
             // Parse an XML to an app
             string xml = File.ReadAllText("AppSample1.xml");
-            App app = App.FromXML(xml);
+            AppManifest app = AppManifest.FromXML(xml);
 
             Assert.AreEqual(2016, app.PublishDate.Year);
             Assert.AreEqual(12, app.PublishDate.Month);

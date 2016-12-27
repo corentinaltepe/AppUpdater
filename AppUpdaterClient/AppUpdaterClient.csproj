@@ -65,6 +65,10 @@
       <Project>{b9cce9de-d46e-4a56-9941-83e55f20ea59}</Project>
       <Name>AppLib</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BootloaderUpdater\BootloaderUpdater.csproj">
+      <Project>{fffc9763-bb46-49d6-bd39-fd3695b933c3}</Project>
+      <Name>BootloaderUpdater</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

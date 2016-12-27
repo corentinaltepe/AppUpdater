@@ -8,7 +8,7 @@ using System.IO.Compression;
 namespace AppLib
 {
     // AppContent is an App with the actual .zip file content
-    public class AppContent : App
+    public class AppContent : AppManifest
     {
         // Use FileStream to read and write file
         public byte[] Archive { get; set; }
@@ -24,7 +24,7 @@ namespace AppLib
             catch { }
         }
 
-        public static AppContent Cast(App app)
+        public static AppContent Cast(AppManifest app)
         {
             AppContent appContent = new AppContent();
 

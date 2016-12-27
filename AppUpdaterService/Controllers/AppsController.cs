@@ -65,7 +65,7 @@ namespace AppUpdaterService.Controllers
             if (encryptedId == null) return BadRequest("ID missing or value is null");
 
             // Find the app information
-            App app = FindLatestApp(encryptedId);
+            AppManifest app = FindLatestApp(encryptedId);
             if (app == null) return BadRequest("App not found. No corresponding ID.");
 
             // Read the message, expect an "action" key
@@ -134,7 +134,7 @@ namespace AppUpdaterService.Controllers
         private string FindAppDecryptedId(string encryptedId)
         {
             AppList apps = ReadListOfApps();
-            foreach (App app in apps.Items)
+            foreach (AppManifest app in apps.Items)
             {
                 try
                 {
@@ -158,14 +158,14 @@ namespace AppUpdaterService.Controllers
         /// <param name="encryptedId">Id of the app, encrypted with its own key.</param>
         /// <returns>Decrypted ID of the App if any found. Null otherwise.</param>
         /// <returns>List of apps with the given (encrypted) Id.</returns>
-        private List<App> FindAppsByEncryptedId(string encryptedId)
+        private List<AppManifest> FindAppsByEncryptedId(string encryptedId)
         {
             string decryptedId = FindAppDecryptedId(encryptedId);
             if (decryptedId == null) return null;
 
-            List<App> selectedApps = new List<App>();
+            List<AppManifest> selectedApps = new List<AppManifest>();
             AppList apps = ReadListOfApps();
-            foreach (App app in apps.Items)
+            foreach (AppManifest app in apps.Items)
             {
                 if (app.Id.Equals(decryptedId))
                     selectedApps.Add(app);
@@ -174,7 +174,7 @@ namespace AppUpdaterService.Controllers
             return selectedApps;
         }
 
-        private App FindLatestApp(string encryptedId)
+        private AppManifest FindLatestApp(string encryptedId)
         {
             // Return the app with encrypteId with highest version number
             var res = FindAppsByEncryptedId(encryptedId);
@@ -183,7 +183,7 @@ namespace AppUpdaterService.Controllers
             return res.OrderByDescending(i => i.Version).FirstOrDefault();
         }
 
-        private AppContent FindAppContentByApp(App app)
+        private AppContent FindAppContentByApp(AppManifest app)
         {
             if (app == null) return null;
 

@@ -74,7 +74,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AppManifest.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="StringCipher.cs" />
+    <Compile Include="StringHex.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -118,12 +121,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AppLib\AppLib.csproj">
-      <Project>{b9cce9de-d46e-4a56-9941-83e55f20ea59}</Project>
-      <Name>AppLib</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
