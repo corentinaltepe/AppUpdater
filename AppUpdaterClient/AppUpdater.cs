@@ -223,7 +223,7 @@ namespace AppUpdaterClient
                     
                     break;
                 }
-                Thread.Sleep(100);
+                //Thread.Sleep(100);
             }
 
             // Get the bytes from the memory stream
