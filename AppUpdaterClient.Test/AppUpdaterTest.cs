@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
 using System.Collections.Generic;
 using AppLib;
+using System.Threading.Tasks;
 
 namespace AppUpdaterClient.Test
 {
@@ -69,7 +70,8 @@ namespace AppUpdaterClient.Test
 
             // Now request to download app (.zip)
             CallbackExecuted = false;
-            updater.DownloadAsync(res => DownloadNewAppCallback(res));
+            Task task = updater.DownloadAsync(res => DownloadNewAppCallback(res));
+            task.Wait();
             while (!CallbackExecuted) Thread.Sleep(20);
 
             // The download should have failed since no .zip file is available
